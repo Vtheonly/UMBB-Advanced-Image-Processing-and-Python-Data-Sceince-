@@ -11,10 +11,14 @@
             "id": "fcafc5394024aa13",
             "type": "leaf",
             "state": {
-              "type": "graph",
-              "state": {},
-              "icon": "lucide-git-fork",
-              "title": "Graph view"
+              "type": "markdown",
+              "state": {
+                "file": "Libraries/01. NumPy Foundations - Memory Layout, ndarray Anatomy, and Array Instantiation.md",
+                "mode": "source",
+                "source": false
+              },
+              "icon": "lucide-file",
+              "title": "01. NumPy Foundations - Memory Layout, ndarray Anatomy, and Array Instantiation"
             }
           }
         ]
@@ -95,6 +99,7 @@
             "state": {
               "type": "backlink",
               "state": {
+                "file": "Libraries/01. NumPy Foundations - Memory Layout, ndarray Anatomy, and Array Instantiation.md",
                 "collapseAll": false,
                 "extraContext": false,
                 "sortOrder": "alphabetical",
@@ -113,6 +118,7 @@
             "state": {
               "type": "outgoing-link",
               "state": {
+                "file": "Libraries/01. NumPy Foundations - Memory Layout, ndarray Anatomy, and Array Instantiation.md",
                 "linksCollapsed": false,
                 "unlinkedCollapsed": true
               },
@@ -155,6 +161,7 @@
             "state": {
               "type": "outline",
               "state": {
+                "file": "Libraries/01. NumPy Foundations - Memory Layout, ndarray Anatomy, and Array Instantiation.md",
                 "followCursor": false,
                 "showSearch": false,
                 "searchQuery": ""
@@ -183,41 +190,41 @@
   },
   "active": "fcafc5394024aa13",
   "lastOpenFiles": [
-    "TAI APDS Vault/06. Advanced Image Processing (TAI)/06.5. Contrast Dynamics and Radiometric Retinex/06.5.2. Advanced Contrast Models (Histogram Specification and Land's Retinex Theory).md",
-    "TAI APDS Vault/06. Advanced Image Processing (TAI)/06.4. Mathematical Morphology and Shape Analysis/06.4.2. Compound Operators (Opening, Closing, Gradient, and Zhang-Suen Thinning).md",
-    "TAI APDS Vault/06. Advanced Image Processing (TAI)/06.3. Frequency Domain and Spectral Processing/06.3.2. Frequency Filters (Low-Pass, High-Pass, and Band-Reject Notch Filtering).md",
-    "TAI APDS Vault/06. Advanced Image Processing (TAI)/06.3. Frequency Domain and Spectral Processing/06.3.1. 2D Discrete Fourier Transform (DFT), FFT Shift, and Convolution Theorem.md",
-    "TAI APDS Vault/06. Advanced Image Processing (TAI)/06.3. Frequency Domain and Spectral Processing",
-    "TAI APDS Vault/06. Advanced Image Processing (TAI)/06.1. Image Foundations and Discretization/06.1.9. Tonal Histograms, Probability Densities, and Cumulative Distribution Functions.md",
-    "TAI APDS Vault/06. Advanced Image Processing (TAI)/06.1. Image Foundations and Discretization/06.1.8. Discrete Spatial Topology, Neighborhoods (N4, N8), and Metric Spaces.md",
-    "TAI APDS Vault/06. Advanced Image Processing (TAI)/06.1. Image Foundations and Discretization/06.1.7. Digital File Encapsulation, Compression Standards, and Medical DICOM.md",
-    "TAI APDS Vault/06. Advanced Image Processing (TAI)/06.1. Image Foundations and Discretization/06.1.6. Perceptual and Broadcast Spaces - YUV, YCbCr, HSV, and CIE Lab.md",
-    "TAI APDS Vault/06. Advanced Image Processing (TAI)/06.1. Image Foundations and Discretization/06.1.5. Color Models - Additive RGB, Subtractive CMYK, and Photometric Grayscale.md",
-    "TAI APDS Vault/06. Advanced Image Processing (TAI)/06.1. Image Foundations and Discretization/06.1.4. Image Representations - Raster Matrix vs Mathematical Vector Primitives.md",
-    "TAI APDS Vault/06. Advanced Image Processing (TAI)/06.1. Image Foundations and Discretization/06.1.3. Amplitude Quantization, Dynamic Range, and Bit Depth.md",
-    "TAI APDS Vault/06. Advanced Image Processing (TAI)/06.1. Image Foundations and Discretization/06.1.2. Spatial Discretization, Dirac Comb Sampling, and Nyquist-Shannon Theorem.md",
-    "TAI APDS Vault/06. Advanced Image Processing (TAI)/06.1. Image Foundations and Discretization/06.1.11. The Classical Vision Processing Hierarchy - Low, Mid, and High-Level Tasks.md",
-    "TAI APDS Vault/06. Advanced Image Processing (TAI)/06.1. Image Foundations and Discretization/06.1.10. Mathematical 2D Spatial Convolution, Cross-Correlation, and Boundary Padding.md",
-    "TAI APDS Vault/06. Advanced Image Processing (TAI)/06.1. Image Foundations and Discretization/06.1.1. Physical Image Formation, Radiometry, and Optical Sensing.md",
-    "TAI APDS Vault/06. Advanced Image Processing (TAI)/06.1. Image Foundations and Discretization",
-    "TAI APDS Vault/fix_vault_architecture.py",
-    "TAI APDS Vault/06. Advanced Image Processing (TAI)/06.2. Degradation, Restoration, and Spatial Filtering/06.2.1. Physical Noise Models (PSF, Gaussian, Impulse Salt-and-Pepper, Speckle).md",
-    "TAI APDS Vault/06. Advanced Image Processing (TAI)/06.1. Image Foundations and Representation/06.1.8. Three-Level Vision Processing Hierarchy (Low, Mid, High).md",
-    "TAI APDS Vault/06. Advanced Image Processing (TAI)/06.2. Degradation, Restoration, and Spatial Filtering/06.2.8. Partial Differential Equations in Restoration (Perona-Malik Anisotropic Diffusion).md",
-    "TAI APDS Vault/06. Advanced Image Processing (TAI)/06.3. Frequency Domain and Spectral Filtering/06.3.1. 2D Discrete Fourier Transform (DFT), FFT Shift, and Convolution Theorem.md",
-    "TAI APDS Vault/06. Advanced Image Processing (TAI)/06.3. Frequency Domain and Spectral Filtering/06.3.2. Frequency Filters (Low-Pass, High-Pass, and Band-Reject Notch Filtering).md",
-    "TAI APDS Vault/06. Advanced Image Processing (TAI)/06.4. Mathematical Morphology and Shape Analysis/06.4.3. Compound Operators (Opening, Closing, and Morphological Gradient).md",
-    "TAI APDS Vault/06. Advanced Image Processing (TAI)/06.5. Contrast Dynamics and Radiometric Retinex/06.5.1. Dynamic Range Expansion and Noise-Tolerant Contrast Stretching.md",
-    "TAI APDS Vault/06. Advanced Image Processing (TAI)/06.5. Contrast Dynamics and Radiometric Retinex/06.5.4. Advanced Contrast Models (Histogram Specification and Land's Retinex Theory).md",
-    "TAI APDS Vault/06. Advanced Image Processing (TAI)/06.6. Clustering and Deep Restoration/06.6.1. Feature Space Clustering (Mean-Shift and 2SP-DBSCAN by UMBB iVision).md",
-    "TAI APDS Vault/06. Advanced Image Processing (TAI)/06.2. Degradation, Restoration, and Spatial Filtering/06.2.4. Spatial High-Pass Filtering, Sobel Gradients, and Laplacian Sharpening.md",
-    "TAI APDS Vault/06. Advanced Image Processing (TAI)/06.1. Image Foundations and Representation/06.1.6. Tonal Histograms, Probability Densities, and Cumulative Distribution Functions.md",
-    "TAI APDS Vault/06. Advanced Image Processing (TAI)/06.9. Practical Laboratories (TPs)",
-    "TAI APDS Vault/06. Advanced Image Processing (TAI)/06.11. Evaluative Question Banks",
-    "TAI APDS Vault/06. Advanced Image Processing (TAI)/06.10. Worked Analytical Exercises and Projects",
-    "TAI APDS Vault/06. Advanced Image Processing (TAI)/06.8. Image Super-Resolution Reconstruction",
-    "TAI APDS Vault/06. Advanced Image Processing (TAI)/06.7. Image Segmentation and Regional Extraction",
-    "TAI APDS Vault/06. Advanced Image Processing (TAI)/06.6. Clustering and Deep Restoration",
-    "TAI APDS Vault/06. Advanced Image Processing (TAI)/06.5. Contrast Dynamics and Radiometric Retinex"
+    "Libraries/00. Library Learning Roadmap.md",
+    "06. Advanced Image Processing (TAI)/06.1. Image Foundations and Discretization/06.1.6. Perceptual and Broadcast Spaces - YUV, YCbCr, HSV, and CIE Lab.md",
+    "06. Advanced Image Processing (TAI)/06.1. Image Foundations and Discretization/06.1.7. Digital File Encapsulation, Compression Standards, and Medical DICOM.md",
+    "06. Advanced Image Processing (TAI)/06.1. Image Foundations and Discretization/06.1.2. Spatial Discretization, Dirac Comb Sampling, and Nyquist-Shannon Theorem.md",
+    "00. Master Curriculum Roadmap.md",
+    "Libraries/23. Super-Resolution and Edge-Adaptive Interpolation - Pascal Getreuer Contour Stencils.md",
+    "Libraries/22. Objective Image Quality Assessment - MSE, PSNR, and SSIM Metrics.md",
+    "Libraries/21. Mathematical Morphology - Set Theory, Structuring Elements, and Thinning.md",
+    "Libraries/20. Non-Linear and Edge-Preserving Filtering - Median, Bilateral, and Nagao Filters.md",
+    "Libraries/19. Spatial Image Restoration - Noise Models, Linear Convolution, and Fast Integral Filters.md",
+    "Libraries/18. Visual Frequency and Radiometry - Histograms, Equalization, AHE, and CLAHE.md",
+    "Libraries/17. Image Spatial Transformations - Interpolation, Scaling, Cropping, and Affine Warping.md",
+    "Libraries/16. OpenCV Core Architecture - Matrix Representation, Channels, and Color Constellations.md",
+    "Libraries/15. Interactive Visualization and Geospatial Mapping - Plotly and Cartopy.md",
+    "Libraries/14. Pandas Temporal Mechanics - Time Series and Datetime Calculations.md",
+    "Libraries/13. Pandas Data Reshaping - Pivoting, Unpivoting, Stacking, and Melting.md",
+    "Libraries/12. Pandas Relational Operations - Joins, Merging, and Concatenation.md",
+    "Libraries/11. Pandas Grouping, Split-Apply-Combine, and Statistical Aggregations.md",
+    "Libraries/10. Matplotlib and Seaborn Statistical Plotting for Tabular Data.md",
+    "Libraries/09. Pandas Data Cleansing - Handling Nulls, Deduplication, and String Normalization.md",
+    "Libraries/08. Pandas Indexing, Slicing, and Query Mechanics (loc, iloc, query, at).md",
+    "Libraries/07. Pandas Data Ingestion, Inspection, and Type Coercion.md",
+    "Libraries/06. Pandas Structural Primitives - Series and DataFrame Architecture.md",
+    "Libraries/05. NumPy Linear Algebra and Advanced Numerical Computation.md",
+    "Libraries/04. NumPy Mathematical Engine - Vectorization, ufuncs, and Broadcasting Rules.md",
+    "Libraries/03. Matplotlib Core Architecture - Figure, Axes, and Canvas Visualization Mechanics.md",
+    "Libraries",
+    "06. Advanced Image Processing (TAI)/06.9. Practical Laboratories (TPs)",
+    "06. Advanced Image Processing (TAI)/06.8. Image Super-Resolution Reconstruction",
+    "06. Advanced Image Processing (TAI)/06.7. Image Segmentation and Regional Extraction",
+    "06. Advanced Image Processing (TAI)/06.6. Clustering and Deep Restoration",
+    "06. Advanced Image Processing (TAI)/06.5. Contrast Dynamics and Radiometric Retinex",
+    "06. Advanced Image Processing (TAI)/06.4. Mathematical Morphology and Shape Analysis",
+    "06. Advanced Image Processing (TAI)/06.3. Frequency Domain and Spectral Processing",
+    "06. Advanced Image Processing (TAI)/06.3. Frequency Domain and Spectral Filtering",
+    "06. Advanced Image Processing (TAI)/06.2. Degradation, Restoration, and Spatial Filtering"
   ]
 }
