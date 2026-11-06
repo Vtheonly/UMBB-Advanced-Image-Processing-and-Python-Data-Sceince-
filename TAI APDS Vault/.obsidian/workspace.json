@@ -1,0 +1,199 @@
+{
+  "main": {
+    "id": "e1b92faf6fd23e0c",
+    "type": "split",
+    "children": [
+      {
+        "id": "2ca069667bbb4b1d",
+        "type": "tabs",
+        "children": [
+          {
+            "id": "07639699cc64acd3",
+            "type": "leaf",
+            "state": {
+              "type": "markdown",
+              "state": {
+                "file": "02. Python Programming Essentials/02.1. Python Runtime, Dynamic Typing, and Core Primitives.md",
+                "mode": "preview",
+                "source": false
+              },
+              "icon": "lucide-file",
+              "title": "02.1. Python Runtime, Dynamic Typing, and Core Primitives"
+            }
+          }
+        ]
+      }
+    ],
+    "direction": "vertical"
+  },
+  "left": {
+    "id": "3a58567f9d72e002",
+    "type": "split",
+    "children": [
+      {
+        "id": "758355bec1ccecc3",
+        "type": "tabs",
+        "children": [
+          {
+            "id": "3c0637e1bd815c96",
+            "type": "leaf",
+            "state": {
+              "type": "file-explorer",
+              "state": {
+                "sortOrder": "alphabetical",
+                "autoReveal": false,
+                "showSearch": false,
+                "searchQuery": ""
+              },
+              "icon": "lucide-folder-closed",
+              "title": "Files"
+            }
+          },
+          {
+            "id": "a284374e92218b96",
+            "type": "leaf",
+            "state": {
+              "type": "search",
+              "state": {
+                "query": "",
+                "matchingCase": false,
+                "explainSearch": false,
+                "collapseAll": false,
+                "extraContext": false,
+                "sortOrder": "alphabetical"
+              },
+              "icon": "lucide-search",
+              "title": "Search"
+            }
+          },
+          {
+            "id": "e9eed1d473e9ba8b",
+            "type": "leaf",
+            "state": {
+              "type": "bookmarks",
+              "state": {
+                "showSearch": false,
+                "searchQuery": ""
+              },
+              "icon": "lucide-bookmark",
+              "title": "Bookmarks"
+            }
+          }
+        ]
+      }
+    ],
+    "direction": "horizontal",
+    "width": 300
+  },
+  "right": {
+    "id": "b1782bce17e458df",
+    "type": "split",
+    "children": [
+      {
+        "id": "13902f2572efcf75",
+        "type": "tabs",
+        "children": [
+          {
+            "id": "8288796c8591d993",
+            "type": "leaf",
+            "state": {
+              "type": "backlink",
+              "state": {
+                "collapseAll": false,
+                "extraContext": false,
+                "sortOrder": "alphabetical",
+                "showSearch": false,
+                "searchQuery": "",
+                "backlinkCollapsed": false,
+                "unlinkedCollapsed": true
+              },
+              "icon": "links-coming-in",
+              "title": "Backlinks"
+            }
+          },
+          {
+            "id": "a1fc86eb89e9af88",
+            "type": "leaf",
+            "state": {
+              "type": "outgoing-link",
+              "state": {
+                "linksCollapsed": false,
+                "unlinkedCollapsed": true
+              },
+              "icon": "links-going-out",
+              "title": "Outgoing links"
+            }
+          },
+          {
+            "id": "546f6260a9749431",
+            "type": "leaf",
+            "state": {
+              "type": "tag",
+              "state": {
+                "sortOrder": "frequency",
+                "useHierarchy": true,
+                "showSearch": false,
+                "searchQuery": ""
+              },
+              "icon": "lucide-tags",
+              "title": "Tags"
+            }
+          },
+          {
+            "id": "b27415ac408e78d0",
+            "type": "leaf",
+            "state": {
+              "type": "all-properties",
+              "state": {
+                "sortOrder": "frequency",
+                "showSearch": false,
+                "searchQuery": ""
+              },
+              "icon": "lucide-archive",
+              "title": "All properties"
+            }
+          },
+          {
+            "id": "09fe058f5ca319c2",
+            "type": "leaf",
+            "state": {
+              "type": "outline",
+              "state": {
+                "followCursor": false,
+                "showSearch": false,
+                "searchQuery": ""
+              },
+              "icon": "lucide-list",
+              "title": "Outline"
+            }
+          }
+        ]
+      }
+    ],
+    "direction": "horizontal",
+    "width": 300,
+    "collapsed": true
+  },
+  "left-ribbon": {
+    "hiddenItems": {
+      "switcher:Open quick switcher": false,
+      "graph:Open graph view": false,
+      "canvas:Create new canvas": false,
+      "daily-notes:Open today's daily note": false,
+      "templates:Insert template": false,
+      "command-palette:Open command palette": false,
+      "bases:Create new base": false
+    }
+  },
+  "active": "07639699cc64acd3",
+  "lastOpenFiles": [
+    "01. Introduction to Data Science/01.4. Tutorial 02 - Hospital Patient Cohort Initialization and Environment Audit.md",
+    "02. Python Programming Essentials/02.1. Python Runtime, Dynamic Typing, and Core Primitives.md",
+    "Libraries/15. Interactive Visualization and Geospatial Mapping - Plotly and Cartopy.md",
+    "05. Exploratory Data Analysis/05.1. Exploratory Data Analysis Principles, Distributions, and Correlation Metrics.md",
+    "01. Introduction to Data Science/01.3. Setting Up the Professional Python and Data Science Environment.md",
+    "01. Introduction to Data Science/01.2. The Modern Data Ecosystem and Professional Roles.md",
+    "01. Introduction to Data Science/01.1. Data Science Foundations and CRISP-DM Workflow.md",
+    "02. Python Programming Essentials/02.7. The 1 Million Records Memory Explosion Autopsy and Production Streaming Solutions.md"
+  ]
+}
