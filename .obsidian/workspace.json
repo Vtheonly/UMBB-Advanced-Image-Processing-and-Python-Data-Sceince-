@@ -1,0 +1,223 @@
+{
+  "main": {
+    "id": "9c3a32b74dc93a3c",
+    "type": "split",
+    "children": [
+      {
+        "id": "05cdb15c1352d4b5",
+        "type": "tabs",
+        "children": [
+          {
+            "id": "fcafc5394024aa13",
+            "type": "leaf",
+            "state": {
+              "type": "graph",
+              "state": {},
+              "icon": "lucide-git-fork",
+              "title": "Graph view"
+            }
+          }
+        ]
+      }
+    ],
+    "direction": "vertical"
+  },
+  "left": {
+    "id": "e20b81f269ac4185",
+    "type": "split",
+    "children": [
+      {
+        "id": "1834f8eb0117108a",
+        "type": "tabs",
+        "children": [
+          {
+            "id": "04a753fafa136095",
+            "type": "leaf",
+            "state": {
+              "type": "file-explorer",
+              "state": {
+                "sortOrder": "alphabetical",
+                "autoReveal": false,
+                "showSearch": false,
+                "searchQuery": ""
+              },
+              "icon": "lucide-folder-closed",
+              "title": "Files"
+            }
+          },
+          {
+            "id": "d4f9d67e62b805d5",
+            "type": "leaf",
+            "state": {
+              "type": "search",
+              "state": {
+                "query": "",
+                "matchingCase": false,
+                "explainSearch": false,
+                "collapseAll": false,
+                "extraContext": false,
+                "sortOrder": "alphabetical"
+              },
+              "icon": "lucide-search",
+              "title": "Search"
+            }
+          },
+          {
+            "id": "ad46bc36ea693d06",
+            "type": "leaf",
+            "state": {
+              "type": "bookmarks",
+              "state": {
+                "showSearch": false,
+                "searchQuery": ""
+              },
+              "icon": "lucide-bookmark",
+              "title": "Bookmarks"
+            }
+          }
+        ]
+      }
+    ],
+    "direction": "horizontal",
+    "width": 829.5
+  },
+  "right": {
+    "id": "9fab8b104ecfd715",
+    "type": "split",
+    "children": [
+      {
+        "id": "18c55b1b4b5d4f2a",
+        "type": "tabs",
+        "children": [
+          {
+            "id": "20da78bcd066e207",
+            "type": "leaf",
+            "state": {
+              "type": "backlink",
+              "state": {
+                "collapseAll": false,
+                "extraContext": false,
+                "sortOrder": "alphabetical",
+                "showSearch": false,
+                "searchQuery": "",
+                "backlinkCollapsed": false,
+                "unlinkedCollapsed": true
+              },
+              "icon": "links-coming-in",
+              "title": "Backlinks"
+            }
+          },
+          {
+            "id": "a8e3702f8d6d4c75",
+            "type": "leaf",
+            "state": {
+              "type": "outgoing-link",
+              "state": {
+                "linksCollapsed": false,
+                "unlinkedCollapsed": true
+              },
+              "icon": "links-going-out",
+              "title": "Outgoing links"
+            }
+          },
+          {
+            "id": "6d4c18a56f464a3f",
+            "type": "leaf",
+            "state": {
+              "type": "tag",
+              "state": {
+                "sortOrder": "frequency",
+                "useHierarchy": true,
+                "showSearch": false,
+                "searchQuery": ""
+              },
+              "icon": "lucide-tags",
+              "title": "Tags"
+            }
+          },
+          {
+            "id": "a0628e982b9b7dd8",
+            "type": "leaf",
+            "state": {
+              "type": "all-properties",
+              "state": {
+                "sortOrder": "frequency",
+                "showSearch": false,
+                "searchQuery": ""
+              },
+              "icon": "lucide-archive",
+              "title": "All properties"
+            }
+          },
+          {
+            "id": "0b0170feb89c38ef",
+            "type": "leaf",
+            "state": {
+              "type": "outline",
+              "state": {
+                "followCursor": false,
+                "showSearch": false,
+                "searchQuery": ""
+              },
+              "icon": "lucide-list",
+              "title": "Outline"
+            }
+          }
+        ]
+      }
+    ],
+    "direction": "horizontal",
+    "width": 300,
+    "collapsed": true
+  },
+  "left-ribbon": {
+    "hiddenItems": {
+      "switcher:Open quick switcher": false,
+      "graph:Open graph view": false,
+      "canvas:Create new canvas": false,
+      "daily-notes:Open today's daily note": false,
+      "templates:Insert template": false,
+      "command-palette:Open command palette": false,
+      "bases:Create new base": false
+    }
+  },
+  "active": "fcafc5394024aa13",
+  "lastOpenFiles": [
+    "TAI APDS Vault/06. Advanced Image Processing (TAI)/06.5. Contrast Dynamics and Radiometric Retinex/06.5.2. Advanced Contrast Models (Histogram Specification and Land's Retinex Theory).md",
+    "TAI APDS Vault/06. Advanced Image Processing (TAI)/06.4. Mathematical Morphology and Shape Analysis/06.4.2. Compound Operators (Opening, Closing, Gradient, and Zhang-Suen Thinning).md",
+    "TAI APDS Vault/06. Advanced Image Processing (TAI)/06.3. Frequency Domain and Spectral Processing/06.3.2. Frequency Filters (Low-Pass, High-Pass, and Band-Reject Notch Filtering).md",
+    "TAI APDS Vault/06. Advanced Image Processing (TAI)/06.3. Frequency Domain and Spectral Processing/06.3.1. 2D Discrete Fourier Transform (DFT), FFT Shift, and Convolution Theorem.md",
+    "TAI APDS Vault/06. Advanced Image Processing (TAI)/06.3. Frequency Domain and Spectral Processing",
+    "TAI APDS Vault/06. Advanced Image Processing (TAI)/06.1. Image Foundations and Discretization/06.1.9. Tonal Histograms, Probability Densities, and Cumulative Distribution Functions.md",
+    "TAI APDS Vault/06. Advanced Image Processing (TAI)/06.1. Image Foundations and Discretization/06.1.8. Discrete Spatial Topology, Neighborhoods (N4, N8), and Metric Spaces.md",
+    "TAI APDS Vault/06. Advanced Image Processing (TAI)/06.1. Image Foundations and Discretization/06.1.7. Digital File Encapsulation, Compression Standards, and Medical DICOM.md",
+    "TAI APDS Vault/06. Advanced Image Processing (TAI)/06.1. Image Foundations and Discretization/06.1.6. Perceptual and Broadcast Spaces - YUV, YCbCr, HSV, and CIE Lab.md",
+    "TAI APDS Vault/06. Advanced Image Processing (TAI)/06.1. Image Foundations and Discretization/06.1.5. Color Models - Additive RGB, Subtractive CMYK, and Photometric Grayscale.md",
+    "TAI APDS Vault/06. Advanced Image Processing (TAI)/06.1. Image Foundations and Discretization/06.1.4. Image Representations - Raster Matrix vs Mathematical Vector Primitives.md",
+    "TAI APDS Vault/06. Advanced Image Processing (TAI)/06.1. Image Foundations and Discretization/06.1.3. Amplitude Quantization, Dynamic Range, and Bit Depth.md",
+    "TAI APDS Vault/06. Advanced Image Processing (TAI)/06.1. Image Foundations and Discretization/06.1.2. Spatial Discretization, Dirac Comb Sampling, and Nyquist-Shannon Theorem.md",
+    "TAI APDS Vault/06. Advanced Image Processing (TAI)/06.1. Image Foundations and Discretization/06.1.11. The Classical Vision Processing Hierarchy - Low, Mid, and High-Level Tasks.md",
+    "TAI APDS Vault/06. Advanced Image Processing (TAI)/06.1. Image Foundations and Discretization/06.1.10. Mathematical 2D Spatial Convolution, Cross-Correlation, and Boundary Padding.md",
+    "TAI APDS Vault/06. Advanced Image Processing (TAI)/06.1. Image Foundations and Discretization/06.1.1. Physical Image Formation, Radiometry, and Optical Sensing.md",
+    "TAI APDS Vault/06. Advanced Image Processing (TAI)/06.1. Image Foundations and Discretization",
+    "TAI APDS Vault/fix_vault_architecture.py",
+    "TAI APDS Vault/06. Advanced Image Processing (TAI)/06.2. Degradation, Restoration, and Spatial Filtering/06.2.1. Physical Noise Models (PSF, Gaussian, Impulse Salt-and-Pepper, Speckle).md",
+    "TAI APDS Vault/06. Advanced Image Processing (TAI)/06.1. Image Foundations and Representation/06.1.8. Three-Level Vision Processing Hierarchy (Low, Mid, High).md",
+    "TAI APDS Vault/06. Advanced Image Processing (TAI)/06.2. Degradation, Restoration, and Spatial Filtering/06.2.8. Partial Differential Equations in Restoration (Perona-Malik Anisotropic Diffusion).md",
+    "TAI APDS Vault/06. Advanced Image Processing (TAI)/06.3. Frequency Domain and Spectral Filtering/06.3.1. 2D Discrete Fourier Transform (DFT), FFT Shift, and Convolution Theorem.md",
+    "TAI APDS Vault/06. Advanced Image Processing (TAI)/06.3. Frequency Domain and Spectral Filtering/06.3.2. Frequency Filters (Low-Pass, High-Pass, and Band-Reject Notch Filtering).md",
+    "TAI APDS Vault/06. Advanced Image Processing (TAI)/06.4. Mathematical Morphology and Shape Analysis/06.4.3. Compound Operators (Opening, Closing, and Morphological Gradient).md",
+    "TAI APDS Vault/06. Advanced Image Processing (TAI)/06.5. Contrast Dynamics and Radiometric Retinex/06.5.1. Dynamic Range Expansion and Noise-Tolerant Contrast Stretching.md",
+    "TAI APDS Vault/06. Advanced Image Processing (TAI)/06.5. Contrast Dynamics and Radiometric Retinex/06.5.4. Advanced Contrast Models (Histogram Specification and Land's Retinex Theory).md",
+    "TAI APDS Vault/06. Advanced Image Processing (TAI)/06.6. Clustering and Deep Restoration/06.6.1. Feature Space Clustering (Mean-Shift and 2SP-DBSCAN by UMBB iVision).md",
+    "TAI APDS Vault/06. Advanced Image Processing (TAI)/06.2. Degradation, Restoration, and Spatial Filtering/06.2.4. Spatial High-Pass Filtering, Sobel Gradients, and Laplacian Sharpening.md",
+    "TAI APDS Vault/06. Advanced Image Processing (TAI)/06.1. Image Foundations and Representation/06.1.6. Tonal Histograms, Probability Densities, and Cumulative Distribution Functions.md",
+    "TAI APDS Vault/06. Advanced Image Processing (TAI)/06.9. Practical Laboratories (TPs)",
+    "TAI APDS Vault/06. Advanced Image Processing (TAI)/06.11. Evaluative Question Banks",
+    "TAI APDS Vault/06. Advanced Image Processing (TAI)/06.10. Worked Analytical Exercises and Projects",
+    "TAI APDS Vault/06. Advanced Image Processing (TAI)/06.8. Image Super-Resolution Reconstruction",
+    "TAI APDS Vault/06. Advanced Image Processing (TAI)/06.7. Image Segmentation and Regional Extraction",
+    "TAI APDS Vault/06. Advanced Image Processing (TAI)/06.6. Clustering and Deep Restoration",
+    "TAI APDS Vault/06. Advanced Image Processing (TAI)/06.5. Contrast Dynamics and Radiometric Retinex"
+  ]
+}
