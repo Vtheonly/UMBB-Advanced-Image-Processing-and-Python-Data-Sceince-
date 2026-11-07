@@ -109,13 +109,15 @@ NOTE_MAP = {
     "03.5. Order-Statistic Non-Linear Filtering - Median and Rank-Order Min-Max Operators": [
         "06. Advanced Image Processing (TAI)/06.2. Degradation, Restoration, and Spatial Filtering/06.2.5. Order-Statistic Non-Linear Filtering (Median, Min, Max, Min-Max Operators).md"],
     "03.6. Structural Edge-Preserving Smoothing - The Nagao Adaptive Multi-Sector Filter": [
-        "06. Advanced Image Processing (TAI)/06.2. Degradation, Restoration, and Spatial Filtering/06.2.6. Structural Edge-Preserving Smoothing (Nagao 9-Sector Multi-Directional Filter).md"],
+        "06. Advanced Image Processing (TAI)/06.2. Degradation, Restoration, and Spatial Filtering/06.2.6. Structural Edge-Preserving Smoothing (Nagao 9-Sector Multi-Directional Filter).md",
+        "Libraries/26. Nagao Filtering - Multi-Implementation Reference with Hardcoded Kernels, Vectorized, and Convolution Approaches.md"],
     "03.7. Fourier Spectral Analysis - 2D DFT, FFT Shift, and Frequency Domain Filtering": [
         "06. Advanced Image Processing (TAI)/06.3. Frequency Domain and Spectral Processing/06.3.1. 2D Discrete Fourier Transform (DFT), FFT Shift, and Convolution Theorem.md"],
     "03.8. Specialized Spectral Operators - Band-Reject Notch Filters and Directional Gabor Filter Banks": [
         "06. Advanced Image Processing (TAI)/06.3. Frequency Domain and Spectral Processing/06.3.2. Frequency Filters (Low-Pass, High-Pass, and Band-Reject Notch Filtering).md"],
     "03.9. Non-Linear Boundary-Preserving Filtering - The Joint Spatial-Radiometric Bilateral Filter": [
-        "06. Advanced Image Processing (TAI)/06.2. Degradation, Restoration, and Spatial Filtering/06.2.7. Non-Linear Boundary-Preserving Filtering (Bilateral Joint Spatial-Radiometric Filter).md"],
+        "06. Advanced Image Processing (TAI)/06.2. Degradation, Restoration, and Spatial Filtering/06.2.7. Non-Linear Boundary-Preserving Filtering (Bilateral Joint Spatial-Radiometric Filter).md",
+        "Libraries/25. Bilateral Filtering - Complete Mathematical Theory, Implementation, and Practice.md"],
     "03.10. Partial Differential Equations in Restoration - Perona-Malik Anisotropic Diffusion": [
         "06. Advanced Image Processing (TAI)/06.2. Degradation, Restoration, and Spatial Filtering/06.2.8. Partial Differential Equations in Restoration (Perona-Malik Anisotropic Diffusion).md"],
     "03.11. Feature Space Clustering Segmentation - Mean-Shift and 2SP-DBSCAN": [
