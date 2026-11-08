@@ -1,13 +1,17 @@
 /**
- * Focus Read: Typography & Ruler — typography application.
+ * Focus Read — typography application.
  *
- * The old implementation rebuilt an entire `<style>` element's textContent
- * (duplicating rules that already exist in styles.css) on every settings
- * change. This controller instead only sets CSS custom properties on :root;
- * the static stylesheet consumes them. One source of truth, zero re-parsing.
+ * Recovered from the original standalone "Focus Read: Typography & Ruler"
+ * plugin and integrated into the main Focus Read plugin.
+ *
+ * The original implementation rebuilt an entire `<style>` element's
+ * textContent (duplicating rules that already exist in styles.css) on every
+ * settings change. This controller instead only sets CSS custom properties
+ * on :root; the static stylesheet consumes them. One source of truth, zero
+ * re-parsing.
  */
 
-import { TypographySettings, resolveFontStack, fontOptionById } from "./settings";
+import { TypographySettings, resolveFontStack, fontOptionById } from "./typography-settings";
 
 export const TYPOGRAPHY_BODY_CLASS = "frt-typography-on";
 const GOOGLE_FONTS_LINK_ID = "frt-google-fonts-link";
@@ -37,7 +41,7 @@ export class TypographyController {
 
   /**
    * Manages the Google Fonts `<link>`.
-   * Only the *selected* family is loaded — the old version injected a
+   * Only the *selected* family is loaded — the original version injected a
    * stylesheet URL containing all six families at once, wasting bandwidth
    * (especially on mobile connections).
    */

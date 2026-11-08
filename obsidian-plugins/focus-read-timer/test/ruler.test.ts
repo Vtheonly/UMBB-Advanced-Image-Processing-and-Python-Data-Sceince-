@@ -1,6 +1,6 @@
 import { describe, it, expect, beforeEach, afterEach, vi } from "vitest";
 import { ReadingRuler, RULER_ID, RULER_BODY_CLASS } from "../src/ruler";
-import { TypographySettings, DEFAULT_SETTINGS } from "../src/settings";
+import { TypographySettings, DEFAULT_TYPOGRAPHY_SETTINGS } from "../src/typography-settings";
 import { firePointer, fireMouse, setViewport, mockRect } from "../../shared/test/dom-helpers";
 
 /**
@@ -12,7 +12,7 @@ import { firePointer, fireMouse, setViewport, mockRect } from "../../shared/test
 
 function createHost(overrides: Partial<TypographySettings> = {}) {
   const settings: TypographySettings = {
-    ...DEFAULT_SETTINGS,
+    ...DEFAULT_TYPOGRAPHY_SETTINGS,
     readingRulerEnabled: true,
     readingRulerHeight: 40,
     ...overrides,
@@ -316,7 +316,7 @@ describe("ReadingRuler viewport changes", () => {
     ruler.applyConfig();
     expect(el.style.transform).toBe("translate3d(0, 720px, 0)");
     expect(el.style.getPropertyValue("--frt-ruler-height")).toBe("80px");
-    expect(el.style.getPropertyValue("--frt-ruler-color")).toBe(DEFAULT_SETTINGS.readingRulerColor);
+    expect(el.style.getPropertyValue("--frt-ruler-color")).toBe(DEFAULT_TYPOGRAPHY_SETTINGS.readingRulerColor);
   });
 
   it("double-click on the handle centers the ruler", async () => {

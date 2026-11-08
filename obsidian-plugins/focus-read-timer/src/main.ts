@@ -1,13 +1,28 @@
 /**
- * Focus Read: Timer & Nudge — plugin entry point.
+ * Focus Read (main plugin) — entry point.
  *
- * The original implementation was a single 890-line class mixing timer
- * state, DOM rendering, drag handling, stats persistence and the nudge
- * system. It leaked a `visibilitychange` listener on unload, re-rendered
- * the widget 60x/second, and froze in background windows. This version
- * delegates to focused modules (timer / widget / stats / nudge / dopamine)
- * and keeps lifecycle management strictly to Obsidian's
- * registerInterval / registerDomEvent / registerEvent APIs.
+ * The all-in-one Focus Read suite. It began as "Focus Read: Timer & Nudge"
+ * (a single 890-line class mixing timer state, DOM rendering, drag handling,
+ * stats persistence and the nudge system) and now also integrates the
+ * complete "Typography & Ruler" functionality that previously lived in a
+ * separate standalone plugin (recovered from the vault's git history,
+ * commit 1f79343). One plugin, one settings screen, one data file:
+ *
+ *   - Floating focus timer (Pomodoro) with pause-on-blur and auto-hide
+ *   - Focus detection & reading-time stats (streaks, per-day history)
+ *   - ADHD idle nudge with snooze
+ *   - Daily goal (dopamine) bar
+ *   - Reading typography (font, size, line height, max width)
+ *   - The yellow reading ruler (pointer follow on desktop, drag on mobile)
+ *
+ * The plugin id stays `focus-read-timer` so existing vaults keep their
+ * enabled-state and data.json. On first load after the merge, the
+ * typography/ruler settings are migrated from the legacy standalone
+ * plugin's data file (see loadTypographySettings).
+ *
+ * Lifecycle management is strictly done through Obsidian's
+ * registerInterval / registerDomEvent / registerEvent APIs; every module
+ * cleans up after itself in onunload().
  */
 
 import { Notice, Plugin } from "obsidian";
@@ -17,22 +32,36 @@ import { ReadingStats, normalizeStats, ReadingStatsTracker } from "./stats";
 import { TimerWidget, TimerControlAction } from "./widget";
 import { NudgeController } from "./nudge";
 import { DopamineBar } from "./dopamine";
-import { TimerSettingTab } from "./settings-tab";
+import { FocusReadSettingTab } from "./settings-tab";
+import {
+  TypographySettings,
+  normalizeTypographySettings,
+} from "./typography-settings";
+import { TypographyController } from "./typography";
+import { ReadingRuler, RULER_BODY_CLASS } from "./ruler";
 
 interface PersistedData {
   settings?: Partial<TimerSettings>;
   stats?: Partial<ReadingStats>;
+  /** Typography & ruler section (merged in from the legacy plugin). */
+  typography?: Partial<TypographySettings>;
 }
+
+/** Where the legacy standalone plugin stored its settings. */
+const LEGACY_TYPOGRAPHY_PLUGIN_DIR = "focus-read-typography";
 
 export default class FocusReadTimerPlugin extends Plugin {
   settings!: TimerSettings;
   stats!: ReadingStats;
+  typographySettings!: TypographySettings;
 
   private timer!: FocusTimer;
   private widget!: TimerWidget;
   private statsTracker!: ReadingStatsTracker;
   private nudge!: NudgeController;
   private dopamine!: DopamineBar;
+  private typography!: TypographyController;
+  private ruler!: ReadingRuler;
 
   /* Activity tracking */
   private lastActivityAt = 0;
@@ -43,6 +72,7 @@ export default class FocusReadTimerPlugin extends Plugin {
     const data: PersistedData = (await this.loadData()) ?? {};
     this.settings = normalizeSettings(data.settings);
     this.stats = normalizeStats(data.stats);
+    const migratedTypography = await this.loadTypographySettings(data);
 
     this.lastActivityAt = Date.now();
     this.lastInputActivityAt = Date.now();
@@ -90,6 +120,17 @@ export default class FocusReadTimerPlugin extends Plugin {
 
     this.dopamine = new DopamineBar();
 
+    this.typography = new TypographyController(() => this.typographySettings);
+    // The ruler's host object holds a live reference to typographySettings;
+    // it is never reassigned after this point, so the ruler always sees the
+    // current values.
+    this.ruler = new ReadingRuler({
+      settings: this.typographySettings,
+      saveSettings: () => this.persist(),
+      registerDomEvent: (el, type, cb, options) =>
+        (this.registerDomEvent as any)(el, type, cb, options),
+    });
+
     /* ----- DOM ----- */
 
     this.widget.mount();
@@ -98,6 +139,12 @@ export default class FocusReadTimerPlugin extends Plugin {
     this.dopamine.applyVisibility(this.settings.dopamineEnabled);
     if (this.settings.dopamineEnabled) {
       this.dopamine.render(this.statsTracker.todayMinutes(), this.settings.dopamineDailyGoalMinutes);
+    }
+
+    this.typography.apply();
+    this.typography.applyGoogleFonts();
+    if (this.typographySettings.readingRulerEnabled) {
+      this.ruler.mount();
     }
 
     /* ----- Global listeners (all auto-cleaned by Obsidian on unload) ----- */
@@ -151,8 +198,15 @@ export default class FocusReadTimerPlugin extends Plugin {
       }
     }, 5000));
 
-    this.addSettingTab(new TimerSettingTab(this.app, this));
+    this.addSettingTab(new FocusReadSettingTab(this.app, this));
     this.registerCommands();
+
+    // Persist right away when the typography section was just migrated, so
+    // the migration runs exactly once even if Obsidian is killed before the
+    // next save.
+    if (migratedTypography) {
+      await this.persist();
+    }
   }
 
   async onunload(): Promise<void> {
@@ -161,6 +215,9 @@ export default class FocusReadTimerPlugin extends Plugin {
     this.widget?.destroy();
     this.nudge?.destroy();
     this.dopamine?.destroy();
+    this.ruler?.destroy();
+    this.typography?.destroy();
+    document.body.classList.remove(RULER_BODY_CLASS);
     this.flushReadingTime();
     await this.persist();
   }
@@ -170,7 +227,58 @@ export default class FocusReadTimerPlugin extends Plugin {
   /* ------------------------------------------------------------------ */
 
   async persist(): Promise<void> {
-    await this.saveData({ settings: this.settings, stats: this.stats });
+    await this.saveData({
+      settings: this.settings,
+      stats: this.stats,
+      typography: this.typographySettings,
+    });
+  }
+
+  /**
+   * Loads the typography & ruler settings.
+   *
+   * Precedence:
+   *   1. The `typography` section of this plugin's own data.json.
+   *   2. The legacy standalone plugin's data.json (one-time migration —
+   *      preserves every setting the user made in the old plugin).
+   *   3. Defaults.
+   *
+   * Returns true when a legacy migration happened (so onload can persist
+   * immediately and make it a one-time event).
+   */
+  private async loadTypographySettings(data: PersistedData): Promise<boolean> {
+    if (data.typography) {
+      this.typographySettings = normalizeTypographySettings(data.typography);
+      return false;
+    }
+
+    const legacy = await this.readLegacyTypographyData();
+    this.typographySettings = normalizeTypographySettings(legacy ?? undefined);
+    if (legacy) {
+      new Notice(
+        "Focus Read: your typography & reading ruler settings were imported from the old plugin."
+      );
+    }
+    return true;
+  }
+
+  /** Reads the legacy standalone plugin's data.json through the vault adapter. */
+  private async readLegacyTypographyData(): Promise<Partial<TypographySettings> | null> {
+    try {
+      const adapter = (this.app as any).vault?.adapter;
+      if (!adapter || typeof adapter.read !== "function") return null;
+      const path = `.obsidian/plugins/${LEGACY_TYPOGRAPHY_PLUGIN_DIR}/data.json`;
+      if (typeof adapter.exists === "function") {
+        if (!(await adapter.exists(path))) return null;
+      }
+      const raw = await adapter.read(path);
+      if (!raw) return null;
+      const parsed = JSON.parse(raw);
+      return typeof parsed === "object" && parsed !== null ? parsed : null;
+    } catch {
+      // Missing file, read error or parse error — fall back to defaults.
+      return null;
+    }
   }
 
   /* ------------------------------------------------------------------ */
@@ -274,6 +382,49 @@ export default class FocusReadTimerPlugin extends Plugin {
     new Notice("Timer moved back to top-right.");
   }
 
+  /* --- Typography & ruler (integrated from the legacy plugin) --- */
+
+  /** Applies typography CSS variables + body class. */
+  applyTypography(): void {
+    this.typography.apply();
+  }
+
+  /** Manages the Google Fonts link (only the selected family). */
+  applyGoogleFonts(): void {
+    this.typography.applyGoogleFonts();
+  }
+
+  /**
+   * Shows/hides the ruler. Called by the settings tab and the toggle
+   * command. (The legacy plugin's settings toggle never reached the ruler —
+   * fixed here: this method really mounts/unmounts the visible band.)
+   */
+  applyRulerVisibility(): void {
+    this.ruler.applyVisibility();
+  }
+
+  /** Applies ruler height/color/opacity and re-clamps the position. */
+  applyRulerConfig(): void {
+    this.ruler.applyConfig();
+  }
+
+  /** Re-applies the saved/restored ruler position (clamped to viewport). */
+  applyRulerPosition(): void {
+    this.ruler.applyPosition();
+  }
+
+  async resetRulerPosition(): Promise<void> {
+    this.typographySettings.readingRulerPositionRatio = null;
+    await this.persist();
+    // Actually move the band back (the legacy reset button had no effect).
+    this.ruler.applyPosition();
+    new Notice("Reading ruler reset to its default height.");
+  }
+
+  /* ------------------------------------------------------------------ */
+  /* Commands                                                            */
+  /* ------------------------------------------------------------------ */
+
   private registerCommands(): void {
     this.addCommand({
       id: "timer-start",
@@ -298,5 +449,64 @@ export default class FocusReadTimerPlugin extends Plugin {
       name: "Reset timer position to top-right",
       callback: () => this.resetTimerPosition(),
     });
+
+    /* --- Typography & ruler commands (ids preserved from the legacy
+       plugin so existing hotkeys keep working) --- */
+
+    this.addCommand({
+      id: "toggle-typography",
+      name: "Toggle typography",
+      callback: async () => {
+        this.typographySettings.typographyEnabled = !this.typographySettings.typographyEnabled;
+        await this.persist();
+        this.typography.apply();
+      },
+    });
+
+    this.addCommand({
+      id: "toggle-ruler",
+      name: "Toggle reading ruler",
+      callback: async () => {
+        this.typographySettings.readingRulerEnabled = !this.typographySettings.readingRulerEnabled;
+        await this.persist();
+        this.ruler.applyVisibility();
+        new Notice(`Reading ruler: ${this.typographySettings.readingRulerEnabled ? "ON" : "OFF"}`);
+      },
+    });
+
+    this.addCommand({
+      id: "center-ruler",
+      name: "Center reading ruler",
+      callback: () => {
+        this.ensureRulerVisible();
+        this.ruler.center();
+      },
+    });
+
+    this.addCommand({
+      id: "ruler-up",
+      name: "Move reading ruler up",
+      callback: () => {
+        this.ensureRulerVisible();
+        this.ruler.nudge(-1);
+      },
+    });
+
+    this.addCommand({
+      id: "ruler-down",
+      name: "Move reading ruler down",
+      callback: () => {
+        this.ensureRulerVisible();
+        this.ruler.nudge(1);
+      },
+    });
+  }
+
+  private ensureRulerVisible(): void {
+    if (!this.typographySettings.readingRulerEnabled) {
+      this.typographySettings.readingRulerEnabled = true;
+      void this.persist();
+    }
+    this.ruler.applyVisibility();
   }
 }

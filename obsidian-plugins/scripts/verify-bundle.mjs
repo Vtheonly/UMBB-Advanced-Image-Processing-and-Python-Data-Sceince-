@@ -11,7 +11,8 @@ import { resolve, dirname } from "node:path";
 import { fileURLToPath } from "node:url";
 
 const root = dirname(fileURLToPath(import.meta.url));
-const PLUGINS = ["focus-read-timer", "focus-read-typography", "heatmap-of-notes"];
+// focus-read-typography was merged INTO focus-read-timer (v2.0.0).
+const PLUGINS = ["focus-read-timer", "heatmap-of-notes"];
 
 let failed = false;
 

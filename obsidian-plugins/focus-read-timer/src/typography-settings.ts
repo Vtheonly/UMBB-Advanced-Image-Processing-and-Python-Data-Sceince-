@@ -1,5 +1,19 @@
 /**
- * Focus Read: Typography & Ruler — settings model.
+ * Focus Read — typography & reading ruler settings model.
+ *
+ * Recovered from the original standalone "Focus Read: Typography & Ruler"
+ * plugin (vault git history, commit 1f79343) and integrated into the main
+ * Focus Read plugin. Every original setting is preserved:
+ *
+ *   typographyEnabled, fontFamily, customFontFamily, loadGoogleFonts,
+ *   fontSize, lineHeight, maxWidthChars, paragraphSpacing,
+ *   readingRulerEnabled, readingRulerHeight, readingRulerColor,
+ *   readingRulerOpacity
+ *
+ * plus two modern additions:
+ *   readingRulerMode           — how the ruler is moved (auto/follow/manual)
+ *   readingRulerPositionRatio  — persisted position as 0..1 of the movable
+ *                                range (survives orientation/screen changes)
  */
 
 export type RulerMode = "auto" | "follow" | "manual";
@@ -27,7 +41,7 @@ export interface TypographySettings {
   readingRulerPositionRatio: number | null;
 }
 
-export const DEFAULT_SETTINGS: TypographySettings = {
+export const DEFAULT_TYPOGRAPHY_SETTINGS: TypographySettings = {
   typographyEnabled: true,
   fontFamily: "system",
   customFontFamily: "",
@@ -98,19 +112,23 @@ export function resolveFontStack(settings: TypographySettings): string {
 /**
  * Validates and normalizes settings loaded from data.json.
  * Fixes out-of-range values (e.g. from hand-edited files) instead of
- * producing broken CSS, and applies defaults for new keys.
+ * producing broken CSS, and applies defaults for new keys. Accepts both the
+ * current nested shape and the legacy flat shape of the old standalone
+ * plugin (which had exactly these keys at the top level).
  */
-export function normalizeSettings(raw: Partial<TypographySettings> | null | undefined): TypographySettings {
-  const merged: TypographySettings = { ...DEFAULT_SETTINGS, ...(raw ?? {}) };
-  merged.fontSize = Math.round(clamp(merged.fontSize, 13, 26, DEFAULT_SETTINGS.fontSize));
-  merged.lineHeight = Math.round(clamp(merged.lineHeight, 1.2, 2.2, DEFAULT_SETTINGS.lineHeight) * 100) / 100;
-  merged.paragraphSpacing = Math.round(clamp(merged.paragraphSpacing, 1, 2.5, DEFAULT_SETTINGS.paragraphSpacing) * 100) / 100;
-  merged.maxWidthChars = Math.round(clamp(merged.maxWidthChars, 40, 120, DEFAULT_SETTINGS.maxWidthChars));
-  merged.readingRulerHeight = Math.round(clamp(merged.readingRulerHeight, 10, 80, DEFAULT_SETTINGS.readingRulerHeight));
-  merged.readingRulerOpacity = Math.round(clamp(merged.readingRulerOpacity, 0.05, 0.9, DEFAULT_SETTINGS.readingRulerOpacity) * 100) / 100;
+export function normalizeTypographySettings(
+  raw: Partial<TypographySettings> | null | undefined
+): TypographySettings {
+  const merged: TypographySettings = { ...DEFAULT_TYPOGRAPHY_SETTINGS, ...(raw ?? {}) };
+  merged.fontSize = Math.round(clamp(merged.fontSize, 13, 26, DEFAULT_TYPOGRAPHY_SETTINGS.fontSize));
+  merged.lineHeight = Math.round(clamp(merged.lineHeight, 1.2, 2.2, DEFAULT_TYPOGRAPHY_SETTINGS.lineHeight) * 100) / 100;
+  merged.paragraphSpacing = Math.round(clamp(merged.paragraphSpacing, 1, 2.5, DEFAULT_TYPOGRAPHY_SETTINGS.paragraphSpacing) * 100) / 100;
+  merged.maxWidthChars = Math.round(clamp(merged.maxWidthChars, 40, 120, DEFAULT_TYPOGRAPHY_SETTINGS.maxWidthChars));
+  merged.readingRulerHeight = Math.round(clamp(merged.readingRulerHeight, 10, 80, DEFAULT_TYPOGRAPHY_SETTINGS.readingRulerHeight));
+  merged.readingRulerOpacity = Math.round(clamp(merged.readingRulerOpacity, 0.05, 0.9, DEFAULT_TYPOGRAPHY_SETTINGS.readingRulerOpacity) * 100) / 100;
   merged.readingRulerColor = /^#[0-9a-fA-F]{3,8}$/.test(String(merged.readingRulerColor))
     ? merged.readingRulerColor
-    : DEFAULT_SETTINGS.readingRulerColor;
+    : DEFAULT_TYPOGRAPHY_SETTINGS.readingRulerColor;
   if (merged.readingRulerMode !== "auto" && merged.readingRulerMode !== "follow" && merged.readingRulerMode !== "manual") {
     merged.readingRulerMode = "auto";
   }

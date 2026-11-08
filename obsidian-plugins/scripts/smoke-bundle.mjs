@@ -176,8 +176,8 @@ const obsidianStub = {
 /* Helpers                                                             */
 /* ------------------------------------------------------------------ */
 
-function makeApp() {
-  return {
+function makeApp(legacyTypographyData = null) {
+  const app = {
     workspace: {
       layoutReady: true,
       on: () => ({}),
@@ -190,6 +190,14 @@ function makeApp() {
       getAbstractFileByPath: () => null,
     },
   };
+  if (legacyTypographyData !== null) {
+    // Simulates the legacy standalone plugin's data.json still on disk.
+    app.vault.adapter = {
+      exists: async (p) => p === ".obsidian/plugins/focus-read-typography/data.json",
+      read: async () => JSON.stringify(legacyTypographyData),
+    };
+  }
+  return app;
 }
 
 function loadBundle(path) {
@@ -234,13 +242,13 @@ async function sleep(ms) {
 
 const { require } = { require: (await import("node:module")).createRequire(import.meta.url) };
 
-async function smokeTypography() {
-  console.log("\n[smoke] focus-read-typography (bundle + real user data)");
-  const PluginClass = loadBundle(resolve(root, "..", "focus-read-typography", "dist", "main.js"));
-  const plugin = new PluginClass(makeApp(), { id: "focus-read-typography", version: "1.1.0" });
+async function smokeFocusRead() {
+  console.log("\n[smoke] focus-read-timer v2 (bundle + real user data + legacy migration)");
+  const PluginClass = loadBundle(resolve(root, "..", "focus-read-timer", "dist", "main.js"));
 
-  // Real data.json from the vault:
-  plugin.data = {
+  // Real timer data.json (pre-merge shape: no `typography` section) + the
+  // legacy standalone plugin's data.json still present in the vault:
+  const legacyTypography = {
     typographyEnabled: false,
     fontFamily: "lexend",
     customFontFamily: "",
@@ -254,38 +262,7 @@ async function smokeTypography() {
     readingRulerColor: "#ffc400",
     readingRulerOpacity: 0.6,
   };
-
-  await plugin.onload();
-
-  const ruler = win.document.getElementById("frt-reading-ruler");
-  check("ruler mounted with user's height (47px)", ruler?.style.getPropertyValue("--frt-ruler-height") === "47px");
-  check("ruler mounted with user's color (#ffc400)", ruler?.style.getPropertyValue("--frt-ruler-color") === "#ffc400");
-  check("ruler visible via body class", win.document.body.classList.contains("frt-ruler-on"));
-  check("typography disabled per user settings", !win.document.body.classList.contains("frt-typography-on"));
-  check("has drag handle with pointer-events target", !!ruler?.querySelector(".frt-ruler-handle"));
-
-  // Simulate a touch drag on the handle:
-  const handle = ruler.querySelector(".frt-ruler-handle");
-  fire(handle, "pointerdown", { clientY: 200, pointerId: 1, pointerType: "touch", button: 0 });
-  fire(handle, "pointermove", { clientY: 420, pointerId: 1, pointerType: "touch" });
-  fire(handle, "pointerup", { clientY: 420, pointerId: 1, pointerType: "touch" });
-  await sleep(30);
-  const saved = plugin.data;
-  check("position persisted as ratio after touch drag", typeof saved.readingRulerPositionRatio === "number" && saved.readingRulerPositionRatio > 0 && saved.readingRulerPositionRatio <= 1);
-  check("user settings preserved on save", saved.readingRulerColor === "#ffc400" && saved.readingRulerHeight === 47);
-
-  await plugin.onunload();
-  for (const { el, type, cb, options } of plugin.registeredDomEvents) el.removeEventListener(type, cb, options);
-  check("ruler removed on unload", win.document.getElementById("frt-reading-ruler") === null);
-  check("body class cleaned", !win.document.body.classList.contains("frt-ruler-on"));
-}
-
-async function smokeTimer() {
-  console.log("\n[smoke] focus-read-timer (bundle + real user data)");
-  const PluginClass = loadBundle(resolve(root, "..", "focus-read-timer", "dist", "main.js"));
-  const plugin = new PluginClass(makeApp(), { id: "focus-read-timer", version: "1.1.0" });
-
-  // Real data.json from the vault:
+  const plugin = new PluginClass(makeApp(legacyTypography), { id: "focus-read-timer", version: "2.0.0" });
   plugin.data = {
     settings: {
       timerEnabled: true,
@@ -317,12 +294,12 @@ async function smokeTimer() {
 
   await plugin.onload();
 
+  // --- Timer side (unchanged behavior) ---
   const el = win.document.getElementById("frt-floating-timer");
   check("timer box mounted", !!el);
   check("timer visible", el?.style.display === "block");
-  check("commands registered", plugin.commands.length >= 4);
+  check("all 9 commands registered (timer + typography/ruler)", plugin.commands.length === 9);
 
-  // Start a session via the actual button:
   el.querySelector('[data-action="start"]').click();
   check("work session starts via UI", plugin.timer.phase === "work" && plugin.timer.running);
   await sleep(400); // let a tick happen
@@ -331,15 +308,39 @@ async function smokeTimer() {
   el.querySelector('[data-action="stop"]').click();
   check("stop via UI", plugin.timer.phase === "idle");
 
-  // Stats preserved:
+  // --- Ruler side (migrated from the legacy plugin) ---
+  const ruler = win.document.getElementById("frt-reading-ruler");
+  check("ruler mounted via legacy migration", !!ruler);
+  check("ruler migrated with user's height (47px)", ruler?.style.getPropertyValue("--frt-ruler-height") === "47px");
+  check("ruler migrated with user's color (#ffc400)", ruler?.style.getPropertyValue("--frt-ruler-color") === "#ffc400");
+  check("ruler migrated with user's opacity (0.6)", ruler?.style.getPropertyValue("--frt-ruler-opacity") === "0.6");
+  check("ruler visible via body class", win.document.body.classList.contains("frt-ruler-on"));
+  check("typography disabled per user settings", !win.document.body.classList.contains("frt-typography-on"));
+  check("has drag handle with pointer-events target", !!ruler?.querySelector(".frt-ruler-handle"));
+  check("migration was persisted immediately", !!plugin.data?.typography?.readingRulerColor);
+
+  // Simulate a touch drag on the handle:
+  const handle = ruler.querySelector(".frt-ruler-handle");
+  fire(handle, "pointerdown", { clientY: 200, pointerId: 1, pointerType: "touch", button: 0 });
+  fire(handle, "pointermove", { clientY: 420, pointerId: 1, pointerType: "touch" });
+  fire(handle, "pointerup", { clientY: 420, pointerId: 1, pointerType: "touch" });
+  await sleep(30);
+  const saved = plugin.data;
+  check("position persisted as ratio after touch drag", typeof saved.typography?.readingRulerPositionRatio === "number" && saved.typography.readingRulerPositionRatio > 0 && saved.typography.readingRulerPositionRatio <= 1);
+  check("user ruler settings preserved on save", saved.typography?.readingRulerColor === "#ffc400" && saved.typography?.readingRulerHeight === 47);
+
   await plugin.onunload();
   for (const { el, type, cb, options } of plugin.registeredDomEvents) el.removeEventListener(type, cb, options);
   for (const id of plugin.registeredIntervals) clearInterval(id);
-  const saved = plugin.data;
-  check("stats preserved through unload", saved.stats.totalReadingMs >= 6365749);
-  check("per-day history preserved", saved.stats.perDayMs["2026-07-08"] === 3278903);
-  check("settings preserved", saved.settings.timerWorkMinutes === 25);
   check("timer box removed", win.document.getElementById("frt-floating-timer") === null);
+  check("ruler removed on unload", win.document.getElementById("frt-reading-ruler") === null);
+  check("body classes cleaned", !win.document.body.classList.contains("frt-ruler-on") && !win.document.body.classList.contains("frt-typography-on"));
+
+  // --- Stats integrity (nothing lost in the merge) ---
+  const savedFinal = plugin.data;
+  check("stats preserved through unload", savedFinal.stats.totalReadingMs >= 6365749);
+  check("per-day history preserved", savedFinal.stats.perDayMs["2026-07-08"] === 3278903);
+  check("settings preserved", savedFinal.settings.timerWorkMinutes === 25);
 }
 
 async function smokeHeatmap() {
@@ -382,8 +383,7 @@ async function smokeHeatmap() {
 }
 
 (async () => {
-  await smokeTypography();
-  await smokeTimer();
+  await smokeFocusRead();
   await smokeHeatmap();
 
   console.log("\n[smoke] " + (failures === 0 ? "ALL PASSED" : `${failures} FAILURE(S)`));

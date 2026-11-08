@@ -1,9 +1,14 @@
 /**
- * Focus Read: Typography & Ruler — the reading ruler.
+ * Focus Read — the reading ruler (the yellow bar).
  *
- * Complete rewrite of the interaction model (the old implementation listened
- * to `mousemove` only, which made the ruler jump to tap positions on touch
- * devices and impossible to move deliberately):
+ * Recovered from the original standalone "Focus Read: Typography & Ruler"
+ * plugin (vault git history, commit 1f79343) and integrated into the main
+ * Focus Read plugin. All original capabilities are preserved (yellow band,
+ * height/color/opacity customization, enable toggle, follow-the-pointer on
+ * desktop); the interaction model was rewritten on Pointer Events because
+ * the old implementation listened to `mousemove` only, which made the ruler
+ * jump to tap positions on touch devices and impossible to move
+ * deliberately:
  *
  * - Pointer Events are used everywhere (mouse, touch and pen are unified).
  * - The ruler itself stays `pointer-events: none` so it never blocks reading,
@@ -22,7 +27,7 @@
  */
 
 import { Platform } from "obsidian";
-import { TypographySettings, RulerMode } from "./settings";
+import { TypographySettings, RulerMode } from "./typography-settings";
 import { hasHoverPointer, getViewportSize, createRafScheduler } from "../../shared/src/viewport";
 
 export const RULER_ID = "frt-reading-ruler";
@@ -64,6 +69,11 @@ export class ReadingRuler {
 
   mount(): void {
     if (this.el) return;
+
+    // Defensive: if a leftover element from the legacy standalone plugin (or
+    // a double mount) is still around with our id, remove it first so there
+    // is never more than one ruler.
+    document.getElementById(RULER_ID)?.remove();
 
     const el = document.createElement("div");
     el.id = RULER_ID;

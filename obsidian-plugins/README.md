@@ -1,15 +1,21 @@
 # Obsidian Plugins — Source, Build & Tests
 
-This directory contains the **complete TypeScript source, build system and test suites** for the three custom Obsidian plugins that were previously shipped only as compiled `main.js` bundles inside `.obsidian/plugins/`:
+This directory contains the **complete TypeScript source, build system and test suites** for the custom Obsidian plugins of this vault:
 
 | Plugin | Plugin ID | Install folder | Version |
 | --- | --- | --- | --- |
-| Focus Read: Timer & Nudge | `focus-read-timer` | `.obsidian/plugins/focus-read-timer/` | 1.1.0 |
-| Focus Read: Typography & Ruler | `focus-read-typography` | `.obsidian/plugins/focus-read-typography/` | 1.1.0 |
+| **Focus Read** (the main plugin: timer + nudge + stats + goal bar + typography + **reading ruler**) | `focus-read-timer` | `.obsidian/plugins/focus-read-timer/` | 2.0.0 |
 | Heatmap of Notes | `heatmap-of-notes` | `.obsidian/plugins/heatmap/` | 1.1.0 |
 
 > The `heatmap` **folder name intentionally stays** `heatmap` (it differs from the manifest id
 > `heatmap-of-notes`) so existing vaults keep their enabled-state and `data.json` working.
+> Likewise `focus-read-timer` keeps its id from the pre-merge era so enabled-state and data survive.
+
+**v2.0.0 — the Yellow Ruler merge.** The former standalone plugin *“Focus Read: Typography &
+Ruler”* (`focus-read-typography`) was recovered from the vault's git history (commit `1f79343`),
+repaired, modernized and **merged into the main Focus Read plugin**. It is no longer a separate
+plugin: one settings screen, one data file, one command namespace. Existing user settings are
+migrated automatically on first launch (see “Upgrade & migration” below).
 
 ---
 
@@ -18,20 +24,47 @@ This directory contains the **complete TypeScript source, build system and test 
 ```bash
 cd obsidian-plugins
 npm install        # dev toolchain: esbuild, typescript, vitest, happy-dom
-npm test           # 128 unit + bootstrap tests
+npm test           # 138 unit + bootstrap tests
 npm run build      # type-safe bundles -> <plugin>/dist/main.js
 npm run verify     # bundle shape sanity checks
-node scripts/smoke-bundle.mjs   # boots the real bundles with a stubbed Obsidian
-npm run deploy -- ..            # copies dist into ../.obsidian/plugins/
+node scripts/smoke-bundle.mjs          # boots the real bundles with a stubbed Obsidian
+node scripts/verify-upgrade-path.mjs   # boots the DEPLOYED bundle with the vault's REAL data.json files
+npm run deploy -- ..                   # copies dist into ../.obsidian/plugins/ (and prunes the legacy plugin)
 ```
-
-`data.json` (user settings + tracked data) is **never** touched by build or deploy.
 
 ---
 
 ## What was wrong and what was fixed
 
-### 1. Focus Read: Typography & Ruler
+### 0. The Yellow Ruler merge (v2.0.0) — recovery, repair, integration
+
+The reading ruler (the yellow bar) originally lived in the standalone *Typography & Ruler*
+plugin. Its historical implementation was recovered from the vault's git history (commit
+`1f79343`, `.obsidian/plugins/focus-read-typography/main.js`, 323 lines) and compared against
+the current code before merging it into the main plugin:
+
+- **All 12 original settings preserved** — `typographyEnabled`, `fontFamily` (8 options incl.
+  custom), `customFontFamily`, `loadGoogleFonts`, `fontSize`, `lineHeight`, `paragraphSpacing`,
+  `maxWidthChars`, `readingRulerEnabled`, `readingRulerHeight`, `readingRulerColor`,
+  `readingRulerOpacity` — plus the two modern additions `readingRulerMode` and
+  `readingRulerPositionRatio`.
+- **Original commands preserved with the same ids** (`toggle-typography`, `toggle-ruler`) so
+  existing hotkeys keep working, plus `center-ruler`, `ruler-up`, `ruler-down`.
+- **Two dead settings controls repaired** (found by comparing historical vs. current
+  behavior): the *“Enable reading ruler”* toggle and the *“Reset ruler position”* button saved
+  their value but never reached the ruler — the ruler only reacted after a plugin reload.
+  Both are now wired through `applyRulerVisibility()` / `applyRulerPosition()` and covered by
+  settings-wiring regression tests.
+- **Custom font stack is sanitized at write time** (previously only at load/apply time).
+- **One-time data migration**: on first launch the main plugin imports the legacy plugin's
+  `data.json` through the vault adapter (works on desktop *and* mobile), shows a notice, and
+  persists immediately so the migration runs exactly once. A corrupted or missing legacy file
+  falls back to defaults without crashing. Verified end-to-end against the vault's real data
+  files (`scripts/verify-upgrade-path.mjs`).
+- **Duplicate-ruler guard**: the ruler removes any leftover `#frt-reading-ruler` element
+  before mounting, so a half-uninstalled legacy plugin can never produce two bands.
+
+### 1. Focus Read: Typography & Ruler (historical fixes, carried into the merge)
 
 The reading ruler (the yellow bar) was the most broken piece on mobile. Root causes found in the
 original code — not symptoms:
@@ -51,7 +84,7 @@ original code — not symptoms:
 | 11 | Custom font stack (user input) was interpolated into CSS without sanitizing → CSS injection. | `sanitizeFontStack()` strips rule-breaking characters; all numeric settings clamped on load. |
 | 12 | No keyboard/commands support for the ruler. | Commands: *Toggle ruler*, *Center ruler*, *Move ruler up/down*. |
 
-### 2. Focus Read: Timer & Nudge
+### 2. Focus Read: Timer & Nudge (historical fixes, unchanged by the merge)
 
 | # | Bug | Fix |
 | --- | --- | --- |
@@ -96,25 +129,20 @@ obsidian-plugins/
 ├── shared/                      # code shared across plugins
 │   ├── src/viewport.ts          # viewport size, clamping, hover detection, rAF scheduler
 │   └── test/                    # obsidian module stub + DOM/pointer test helpers
-├── focus-read-timer/
+├── focus-read-timer/            # THE MAIN PLUGIN: "Focus Read" v2.0.0
 │   ├── src/
-│   │   ├── main.ts              # lifecycle, commands, wiring
-│   │   ├── settings.ts          # settings model + normalization + clock formatting
+│   │   ├── main.ts              # lifecycle, commands, wiring, legacy migration
+│   │   ├── settings.ts          # timer settings model + normalization + clock formatting
 │   │   ├── timer.ts             # FocusTimer state machine (pure logic)
 │   │   ├── stats.ts             # reading-time stats: rollover, streaks, accrual (pure logic)
 │   │   ├── widget.ts            # floating timer box: render, pointer drag, auto-hide
 │   │   ├── nudge.ts             # idle nudge with snooze
 │   │   ├── dopamine.ts          # daily goal bar
-│   │   └── settings-tab.ts
-│   └── test/                    # 54 tests
-├── focus-read-typography/
-│   ├── src/
-│   │   ├── main.ts              # lifecycle, commands, wiring
-│   │   ├── settings.ts          # settings model, font stacks, sanitization
+│   │   ├── typography-settings.ts  # typography+ruler settings, font stacks, sanitization
 │   │   ├── typography.ts        # CSS-variable application + Google Fonts link management
 │   │   ├── ruler.ts             # ReadingRuler: pointer drag + follow + clamping
-│   │   └── settings-tab.ts
-│   └── test/                    # 41 tests (incl. touch/mouse interaction suites)
+│   │   └── settings-tab.ts      # unified tab: timer/focus/nudge/goal/typography/ruler
+│   └── test/                    # 96 tests (54 timer + 42 typography/ruler incl. migration)
 ├── heatmap-of-notes/
 │   ├── src/
 │   │   ├── main.ts              # lifecycle, workspace/vault events
@@ -128,13 +156,41 @@ obsidian-plugins/
 │   └── test/                    # 33 tests
 ├── scripts/
 │   ├── build.mjs                # esbuild: TS -> single-file CJS bundle per plugin
-│   ├── deploy.mjs               # copy dist into a vault's .obsidian/plugins
+│   ├── deploy.mjs               # copy dist into a vault's .obsidian/plugins (+ prune legacy)
 │   ├── verify-bundle.mjs        # bundle shape checks (exports class, obsidian external)
-│   └── smoke-bundle.mjs         # boots the REAL bundles with a stubbed Obsidian + happy-dom
+│   ├── smoke-bundle.mjs         # boots the REAL bundles with a stubbed Obsidian + happy-dom
+│   └── verify-upgrade-path.mjs  # boots the DEPLOYED bundle with the vault's REAL data files
 ├── package.json                 # npm scripts
 ├── tsconfig.json                # strict TypeScript
 └── vitest.config.ts             # happy-dom environment + obsidian alias to the stub
 ```
+
+### data.json shape (Focus Read)
+
+```json
+{
+  "settings":   { "timerEnabled": true, "...": "timer/nudge/focus/goal settings" },
+  "stats":      { "totalReadingMs": 0, "...": "reading-time stats" },
+  "typography": { "readingRulerEnabled": true, "readingRulerColor": "#ffc400", "...": "typography + ruler settings" }
+}
+```
+
+The `typography` section is new in v2.0.0; on first launch it is imported from the legacy
+standalone plugin's `data.json` (see below).
+
+## Upgrade & migration (old vaults)
+
+For a vault that still has the old two Focus Read plugins installed:
+
+1. Deploy (or git-pull) the new `.obsidian/plugins/focus-read-timer/` (v2.0.0). The plugin id is
+   unchanged, so it stays enabled with its existing timer settings and stats.
+2. The legacy `focus-read-typography` folder loses its code files (deploy prunes them and drops
+   the id from `community-plugins.json`); its `data.json` is **kept on purpose**.
+3. On the first launch of Focus Read v2.0.0, the plugin reads that legacy `data.json` through
+   the vault adapter, imports every typography/ruler setting, shows a notice, and persists the
+   merged data immediately — the migration runs exactly once. After that the legacy `data.json`
+   is inert and can be deleted by hand at any time.
+4. Nothing else changes: heatmap is untouched, stats are untouched, command ids are preserved.
 
 ## Testing
 
@@ -145,12 +201,16 @@ Four layers:
 2. **DOM interaction tests** (vitest + happy-dom): pointer-event pipelines simulate mouse drags,
    touch drags, taps, `pointercancel` (OS gesture interruption), viewport rotations — asserting
    the exact scenarios that were broken on mobile.
-3. **Bootstrap tests**: the real plugin classes are loaded against an Obsidian API stub and run
-   through `onload → interact → onunload`, asserting DOM effects and **zero leaked
-   listeners/intervals**.
-4. **Bundle smoke tests** (`scripts/smoke-bundle.mjs`): the *actual shipped* `dist/main.js`
-   artifacts are booted with the vault's real `data.json` files; interactions are driven through
-   the DOM; data integrity is verified across a full load/unload cycle.
+3. **Bootstrap + settings-wiring tests**: the real plugin classes are loaded against an
+   Obsidian API stub and run through `onload → interact → onunload`, asserting DOM effects,
+   **zero leaked listeners/intervals**, and — for the merged ruler — that *every settings
+   control really reaches the live ruler/typography* (toggles mount/unmount the band, sliders
+   change `--frt-ruler-*`, the reset button moves the band, values persist across a simulated
+   restart, and the legacy `data.json` migration produces the user's exact ruler).
+4. **Bundle smoke tests** (`scripts/smoke-bundle.mjs`, `scripts/verify-upgrade-path.mjs`): the
+   *actual shipped* bundles are booted with the vault's real `data.json` files; interactions
+   are driven through the DOM; data integrity is verified across a full load/unload cycle,
+   including the real pre-merge → post-merge upgrade path.
 
 ### Testing limitations (please read)
 
@@ -166,7 +226,7 @@ could not be verified here and should get a quick pass on a real device:
 - Performance on very large vaults: `data.json` still holds all records in one file (10 s
   throttled writes, same as before). The new prune tool helps keep it small.
 
-Everything else — including every fix in the tables above — is covered by the 128 automated tests.
+Everything else — including every fix in the tables above — is covered by the 138 automated tests.
 
 ## Deploying
 
@@ -176,5 +236,8 @@ node scripts/deploy.mjs /path/to/vault              # one or more vault roots
 ```
 
 The script copies `main.js`, `manifest.json` and `styles.css` into
-`<vault>/.obsidian/plugins/<folder>/` and never touches `data.json`. After deploying, restart
-Obsidian (or toggle the plugins off/on) and check Settings → Community plugins.
+`<vault>/.obsidian/plugins/<folder>/` and never touches `data.json`. For vaults that still
+contain the legacy standalone `focus-read-typography` plugin, deploy also removes its code
+files (keeping `data.json` for the one-time migration) and drops the id from
+`community-plugins.json`. After deploying, restart Obsidian (or toggle the plugins off/on) and
+check Settings → Community plugins.

@@ -68,13 +68,34 @@ export class PluginSettingTab {
   constructor(app: any, plugin: any) {
     this.app = app;
     this.plugin = plugin;
-    this.containerEl = (globalThis as any).document?.createElement("div") as HTMLElement;
+    const el = (globalThis as any).document?.createElement("div") as HTMLElement;
+    // Obsidian augments HTMLElement with empty()/createEl(); happy-dom does
+    // not provide them, so polyfill the ones settings tabs rely on.
+    if (el) {
+      (el as any).empty = () => {
+        el.innerHTML = "";
+      };
+      (el as any).createEl = (tag: string, opts?: { text?: string; cls?: string }) => {
+        const child = (globalThis as any).document.createElement(tag);
+        if (opts?.text !== undefined) child.textContent = String(opts.text);
+        if (opts?.cls) child.className = String(opts.cls);
+        el.appendChild(child);
+        return child;
+      };
+    }
+    this.containerEl = el;
   }
   display(): void {}
   hide(): void {}
 }
 
 export class Setting {
+  /** All Setting instances created since the last reset (test introspection). */
+  static instances: Setting[] = [];
+  static resetInstances(): void {
+    Setting.instances = [];
+  }
+
   settingEl: HTMLElement;
   name = "";
   desc = "";
@@ -83,6 +104,7 @@ export class Setting {
   constructor(public containerEl?: HTMLElement) {
     this.settingEl = (globalThis as any).document?.createElement("div") as HTMLElement;
     if (containerEl) containerEl.appendChild(this.settingEl);
+    Setting.instances.push(this);
   }
 
   setName(name: string | DocumentFragment): this {

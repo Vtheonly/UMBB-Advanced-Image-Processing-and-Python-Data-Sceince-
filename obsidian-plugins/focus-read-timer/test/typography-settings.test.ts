@@ -1,15 +1,15 @@
 import { describe, it, expect } from "vitest";
 import {
-  normalizeSettings,
+  normalizeTypographySettings,
   sanitizeFontStack,
   resolveFontStack,
-  DEFAULT_SETTINGS,
+  DEFAULT_TYPOGRAPHY_SETTINGS,
   fontOptionById,
-} from "../src/settings";
+} from "../src/typography-settings";
 
-describe("normalizeSettings", () => {
+describe("normalizeTypographySettings", () => {
   it("applies defaults for missing keys (old data.json compatibility)", () => {
-    const s = normalizeSettings({
+    const s = normalizeTypographySettings({
       typographyEnabled: false,
       readingRulerEnabled: true,
       readingRulerHeight: 47,
@@ -18,13 +18,13 @@ describe("normalizeSettings", () => {
     } as any);
     expect(s.readingRulerMode).toBe("auto"); // new key defaulted
     expect(s.readingRulerPositionRatio).toBeNull();
-    expect(s.fontSize).toBe(DEFAULT_SETTINGS.fontSize);
+    expect(s.fontSize).toBe(DEFAULT_TYPOGRAPHY_SETTINGS.fontSize);
     expect(s.typographyEnabled).toBe(false); // preserved
     expect(s.readingRulerHeight).toBe(47); // preserved
   });
 
   it("repairs out-of-range values instead of generating broken CSS", () => {
-    const s = normalizeSettings({
+    const s = normalizeTypographySettings({
       fontSize: 999,
       lineHeight: 0.1,
       maxWidthChars: -5,
@@ -39,14 +39,14 @@ describe("normalizeSettings", () => {
     expect(s.maxWidthChars).toBeGreaterThanOrEqual(40);
     expect(s.readingRulerHeight).toBeLessThanOrEqual(80);
     expect(s.readingRulerOpacity).toBeLessThanOrEqual(0.9);
-    expect(s.readingRulerColor).toBe(DEFAULT_SETTINGS.readingRulerColor);
+    expect(s.readingRulerColor).toBe(DEFAULT_TYPOGRAPHY_SETTINGS.readingRulerColor);
     expect(s.readingRulerMode).toBe("auto");
     expect(s.readingRulerPositionRatio).toBe(1); // clamped, not dropped
   });
 
   it("preserves valid user data from the real vault", () => {
     // Actual data.json from the user's vault.
-    const s = normalizeSettings({
+    const s = normalizeTypographySettings({
       typographyEnabled: false,
       fontFamily: "lexend",
       customFontFamily: "",
