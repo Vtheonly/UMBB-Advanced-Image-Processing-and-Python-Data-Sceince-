@@ -2,14 +2,18 @@
   "name": "obsidian-plugins-monorepo",
   "version": "2.0.0",
   "private": true,
-  "description": "Source, build and tests for the Focus Read and Heatmap Obsidian plugins (TypeScript).",
+  "description": "Source, build and tests for the Focus Read Suite — the unified Obsidian plugin consolidating Focus Read Timer, Typography & Ruler, and Heatmap of Notes (TypeScript).",
   "type": "module",
   "scripts": {
     "build": "node scripts/build.mjs",
+    "build:legacy": "node scripts/build.mjs --legacy",
     "test": "vitest run",
     "test:watch": "vitest",
+    "test:legacy": "cd legacy && vitest run --config vitest.config.ts",
     "deploy": "node scripts/build.mjs && node scripts/deploy.mjs",
-    "verify": "node scripts/verify-bundle.mjs"
+    "verify": "node scripts/verify-bundle.mjs",
+    "smoke": "node scripts/smoke-bundle.mjs",
+    "check": "npm run build && npm run verify && npm test && npm run smoke"
   },
   "devDependencies": {
     "@types/node": "^24.0.0",

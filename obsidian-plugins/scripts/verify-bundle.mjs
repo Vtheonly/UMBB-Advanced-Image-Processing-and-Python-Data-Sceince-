@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 /**
- * Smoke-verifies each built bundle:
+ * Smoke-verifies the built bundle:
  *   1. The bundle must be non-empty CommonJS that exports a class.
  *   2. It must require the `obsidian` module at runtime (never inlined).
  *   3. Loading it with a stubbed obsidian + minimal DOM must not throw.
@@ -11,8 +11,7 @@ import { resolve, dirname } from "node:path";
 import { fileURLToPath } from "node:url";
 
 const root = dirname(fileURLToPath(import.meta.url));
-// focus-read-typography was merged INTO focus-read-timer (v2.0.0).
-const PLUGINS = ["focus-read-timer", "heatmap-of-notes"];
+const PLUGINS = ["focus-read-suite"];
 
 let failed = false;
 
@@ -53,6 +52,7 @@ for (const plugin of PLUGINS) {
     TFile: class TFile {},
     TFolder: class TFolder {},
     Platform: { isMobile: false, isDesktop: true },
+    normalizePath: (p) => p,
   };
 
   try {
