@@ -18,9 +18,12 @@ One plugin, one settings system, one visual identity — while every original fe
 cd obsidian-plugins
 npm install                     # dev toolchain: esbuild, typescript, vitest, happy-dom
 npm test                        # 161 unit + integration tests
+npm run test:legacy             # 128 archived legacy-plugin tests (behavioral reference)
 npm run build                   # type-safe bundle -> focus-read-suite/dist/main.js
+npm run build:legacy            # also build the archived legacy bundles (rollback artifacts)
 npm run verify                  # bundle shape sanity checks
 node scripts/smoke-bundle.mjs   # boots the REAL bundle with legacy data + stubbed Obsidian
+node scripts/verify-upgrade-path.mjs  # boots the DEPLOYED bundle with the vault's REAL data.json files
 npm run deploy -- ..            # copies dist into ../.obsidian/plugins/focus-read-suite/
 npm run check                   # build + verify + test + smoke in one go
 ```
@@ -127,10 +130,11 @@ obsidian-plugins/
 │   ├── heatmap-of-notes/
 │   └── shared/
 ├── scripts/
-│   ├── build.mjs                      # esbuild: TS -> single-file CJS bundle
-│   ├── deploy.mjs                     # copy dist into the vault's .obsidian/plugins
+│   ├── build.mjs                      # esbuild: TS -> single-file CJS bundle (--legacy for the archive)
+│   ├── deploy.mjs                     # copy dist into the vault's .obsidian/plugins (--legacy for rollback)
 │   ├── verify-bundle.mjs              # bundle shape checks (class export, obsidian external)
-│   └── smoke-bundle.mjs               # boots the REAL bundle + legacy data + interactions
+│   ├── smoke-bundle.mjs               # boots the REAL bundle + legacy data + interactions
+│   └── verify-upgrade-path.mjs        # boots the DEPLOYED bundle with the vault's REAL data files
 ├── package.json                       # test / test:legacy / build / verify / smoke / deploy / check
 ├── tsconfig.json                      # strict TypeScript over both trees
 └── vitest.config.ts                   # suite tests (legacy has its own config)
@@ -154,6 +158,7 @@ Four layers, all green:
 2. **DOM interaction tests** (happy-dom + pointer-event pipeline): mouse drags, **touch drags**, taps (the old teleport bug), `pointercancel`, `lostpointercapture`, viewport rotations, double-tap detection, keyboard support, widget collapse, settings-tab wiring (toggles/sliders/dropdowns/colors drive real modules).
 3. **Bootstrap tests**: the real plugin class loads against an Obsidian API stub with legacy data present, runs `onload → migrate → interact → onunload`, asserting DOM effects, data preservation, legacy-file immutability and **zero leaked listeners/intervals**.
 4. **Bundle smoke test** (`scripts/smoke-bundle.mjs`): the *shipped* `dist/main.js` is booted with the vault's legacy `data.json` payloads; interactions are driven through the DOM; migration, data preservation, cleanup and legacy-file immutability are verified end-to-end.
+5. **Real-data upgrade-path verification** (`scripts/verify-upgrade-path.mjs`): boots the **deployed** bundle (`.obsidian/plugins/focus-read-suite/main.js`) against the vault's **actual** `data.json` files read from disk — 45 checks covering: the user's exact Yellow Ruler mounting after migration (color `#ffc400`, height 47px, opacity 0.6), every migrated setting, stats/records preservation, touch-drag + tap-immunity + center-command behavior, debounced persistence, byte-identical legacy files after unload, and idempotent second boot (no re-migration).
 
 The archived legacy plugins keep their 128 tests (`npm run test:legacy`) as a behavioral reference.
 

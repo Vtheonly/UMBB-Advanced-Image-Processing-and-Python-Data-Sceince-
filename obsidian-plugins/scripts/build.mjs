@@ -20,7 +20,9 @@ import { fileURLToPath } from "node:url";
 const root = dirname(fileURLToPath(import.meta.url));
 
 const SUITE = "focus-read-suite";
-const LEGACY = ["focus-read-timer", "focus-read-typography", "heatmap-of-notes"];
+// Legacy sources live under legacy/ (archived at v1.1.0) — build and deploy
+// paths must agree on that prefix.
+const LEGACY = ["legacy/focus-read-timer", "legacy/focus-read-typography", "legacy/heatmap-of-notes"];
 
 const withLegacy = process.argv.includes("--legacy");
 const plugins = [SUITE, ...(withLegacy ? LEGACY : [])];
