@@ -1,7 +1,10 @@
 #!/usr/bin/env node
 /**
- * Builds every plugin into a single-file CommonJS `main.js` bundle that
- * Obsidian can load, plus copies manifest/styles next to the bundle.
+ * Builds plugins into single-file CommonJS `main.js` bundles Obsidian can
+ * load, plus copies manifest/styles next to the bundle.
+ *
+ *   node scripts/build.mjs            → builds focus-read-suite (the product)
+ *   node scripts/build.mjs --legacy   → also builds the archived legacy plugins
  *
  * Output layout (per plugin):
  *   <plugin>/dist/main.js        — bundled plugin entry
@@ -15,13 +18,18 @@ import { resolve, dirname } from "node:path";
 import { fileURLToPath } from "node:url";
 
 const root = dirname(fileURLToPath(import.meta.url));
-const PLUGINS = ["focus-read-timer", "focus-read-typography", "heatmap-of-notes"];
+
+const SUITE = "focus-read-suite";
+const LEGACY = ["focus-read-timer", "focus-read-typography", "heatmap-of-notes"];
+
+const withLegacy = process.argv.includes("--legacy");
+const plugins = [SUITE, ...(withLegacy ? LEGACY : [])];
 
 let failed = false;
 
-for (const plugin of PLUGINS) {
+for (const plugin of plugins) {
   const srcDir = resolve(root, "..", plugin);
-  const outDir = resolve(root, "..", plugin, "dist");
+  const outDir = resolve(srcDir, "dist");
 
   if (!existsSync(resolve(srcDir, "src", "main.ts"))) {
     console.error(`[build] ${plugin}: src/main.ts not found, skipping.`);

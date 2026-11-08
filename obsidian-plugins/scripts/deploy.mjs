@@ -4,32 +4,40 @@
  * folders so Obsidian loads the freshly built versions.
  *
  * Usage:
- *   node scripts/deploy.mjs <vaultRoot> [<vaultRoot2> ...]
+ *   node scripts/deploy.mjs <vaultRoot> [...more vault roots]   → suite only
+ *   node scripts/deploy.mjs --legacy <vaultRoot>                → suite + legacy
  *
- * For each plugin the deploy target is:
- *   <vaultRoot>/.obsidian/plugins/<installDir>/{main.js, manifest.json, styles.css}
+ * For the suite the deploy target is:
+ *   <vaultRoot>/.obsidian/plugins/focus-read-suite/{main.js, manifest.json, styles.css}
  *
- * `data.json` (user settings + tracked data) is intentionally NEVER touched.
+ * `data.json` (user settings + tracked data) is intentionally NEVER touched —
+ * neither for the suite nor for the legacy plugins (they stay rollback-able).
  */
-import { cp, mkdir, readFile, writeFile } from "node:fs/promises";
+import { cp, mkdir, readFile, rm } from "node:fs/promises";
 import { existsSync } from "node:fs";
 import { resolve, dirname } from "node:path";
 import { fileURLToPath } from "node:url";
 
 const root = dirname(fileURLToPath(import.meta.url));
 
-/** plugin source folder -> folder name inside .obsidian/plugins */
-const PLUGINS = [
-  { src: "focus-read-timer", dir: "focus-read-timer" },
-  { src: "focus-read-typography", dir: "focus-read-typography" },
-  { src: "heatmap-of-notes", dir: "heatmap" }, // keep existing folder name (compatibility)
-];
-
-const vaultRoots = process.argv.slice(2);
+const withLegacy = process.argv.includes("--legacy");
+const vaultRoots = process.argv.slice(2).filter((a) => !a.startsWith("--"));
 if (vaultRoots.length === 0) {
-  console.error("Usage: node scripts/deploy.mjs <vaultRoot> [...more vault roots]");
+  console.error("Usage: node scripts/deploy.mjs [--legacy] <vaultRoot> [...more vault roots]");
   process.exit(1);
 }
+
+/** plugin source folder -> folder name inside .obsidian/plugins */
+const PLUGINS = [
+  { src: "focus-read-suite", dir: "focus-read-suite" },
+  ...(withLegacy
+    ? [
+        { src: "legacy/focus-read-timer", dir: "focus-read-timer" },
+        { src: "legacy/focus-read-typography", dir: "focus-read-typography" },
+        { src: "legacy/heatmap-of-notes", dir: "heatmap" }, // keep existing folder name (compatibility)
+      ]
+    : []),
+];
 
 for (const vault of vaultRoots) {
   for (const { src, dir } of PLUGINS) {
@@ -49,8 +57,6 @@ for (const vault of vaultRoots) {
       }
     }
 
-    // Sanity check: manifest id must stay stable so existing enabled-state and
-    // data.json keep working across the upgrade.
     const manifest = JSON.parse(await readFile(resolve(target, "manifest.json"), "utf8"));
     console.log(
       `[deploy] ${vault} -> .obsidian/plugins/${dir}/ (id: ${manifest.id}, v${manifest.version})`

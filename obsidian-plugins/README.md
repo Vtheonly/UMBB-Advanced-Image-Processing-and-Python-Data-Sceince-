@@ -1,15 +1,14 @@
-# Obsidian Plugins — Source, Build & Tests
+# Focus Read Suite — Source, Build & Tests
 
-This directory contains the **complete TypeScript source, build system and test suites** for the three custom Obsidian plugins that were previously shipped only as compiled `main.js` bundles inside `.obsidian/plugins/`:
+This directory contains the **complete TypeScript source, build system, test suites and deployed artifact** for **Focus Read Suite** (`focus-read-suite` v2.0.0) — the single unified Obsidian plugin that consolidates the three former plugins:
 
-| Plugin | Plugin ID | Install folder | Version |
+| Former plugin | Legacy id | Install folder | Now |
 | --- | --- | --- | --- |
-| Focus Read: Timer & Nudge | `focus-read-timer` | `.obsidian/plugins/focus-read-timer/` | 1.1.0 |
-| Focus Read: Typography & Ruler | `focus-read-typography` | `.obsidian/plugins/focus-read-typography/` | 1.1.0 |
-| Heatmap of Notes | `heatmap-of-notes` | `.obsidian/plugins/heatmap/` | 1.1.0 |
+| Focus Read: Timer & Nudge | `focus-read-timer` | `.obsidian/plugins/focus-read-timer/` | **Timer module** |
+| Focus Read: Typography & Ruler | `focus-read-typography` | `.obsidian/plugins/focus-read-typography/` | **Reading Focus + Typography modules** |
+| Heatmap of Notes | `heatmap-of-notes` | `.obsidian/plugins/heatmap/` | **Heatmap module** |
 
-> The `heatmap` **folder name intentionally stays** `heatmap` (it differs from the manifest id
-> `heatmap-of-notes`) so existing vaults keep their enabled-state and `data.json` working.
+One plugin, one settings system, one visual identity — while every original feature is preserved, improved, and **your data migrates automatically** on first launch.
 
 ---
 
@@ -17,75 +16,82 @@ This directory contains the **complete TypeScript source, build system and test 
 
 ```bash
 cd obsidian-plugins
-npm install        # dev toolchain: esbuild, typescript, vitest, happy-dom
-npm test           # 128 unit + bootstrap tests
-npm run build      # type-safe bundles -> <plugin>/dist/main.js
-npm run verify     # bundle shape sanity checks
-node scripts/smoke-bundle.mjs   # boots the real bundles with a stubbed Obsidian
-npm run deploy -- ..            # copies dist into ../.obsidian/plugins/
+npm install                     # dev toolchain: esbuild, typescript, vitest, happy-dom
+npm test                        # 161 unit + integration tests
+npm run build                   # type-safe bundle -> focus-read-suite/dist/main.js
+npm run verify                  # bundle shape sanity checks
+node scripts/smoke-bundle.mjs   # boots the REAL bundle with legacy data + stubbed Obsidian
+npm run deploy -- ..            # copies dist into ../.obsidian/plugins/focus-read-suite/
+npm run check                   # build + verify + test + smoke in one go
 ```
 
 `data.json` (user settings + tracked data) is **never** touched by build or deploy.
 
 ---
 
-## What was wrong and what was fixed
+## What the suite includes
 
-### 1. Focus Read: Typography & Ruler
+### 1. Focus Read Timer (`modules/timer`)
+The floating focus timer with a redesigned card UI (status pill with live phase dot, big tabular clock, phase-colored progress bar, touch-friendly controls, double-click/double-tap header to collapse):
+- Pomodoro-style work/break state machine — pausable in **both** phases, accurate in background windows (250 ms timestamp math, DOM touched ~1 Hz).
+- **Focus detection** — only accumulates focus time while you're actively reading.
+- **Idle nudge** — "you stopped reading" card with a real snooze after dismissal.
+- **Daily goal bar** — bottom progress strip with safe-area support.
+- **Reading statistics** — today / all-time / per-day history, streaks, longest focus, sessions; rendered as a dashboard in Settings → Timer.
 
-The reading ruler (the yellow bar) was the most broken piece on mobile. Root causes found in the
-original code — not symptoms:
+### 2. Notch & Reading Focus (`modules/focus`)
+The completely reconstructed reading ruler — the feature that was most broken on mobile:
+- The band itself is `pointer-events: none` — it **never** teleports to taps and never intercepts scrolling.
+- The **notch** (the round tab on the right edge) is the only interactive element: a 36–56 px touch target with `touch-action: none` and `setPointerCapture`, driven by **Pointer Events** (mouse, pen and touch unified).
+- `pointercancel` and `lostpointercapture` end drags cleanly (no ruler glued to your finger after an OS gesture takeover).
+- Follow mode tracks only hover-capable pointers; touch pointers never move the ruler implicitly.
+- Position persists as a **0–1 ratio** of the movable range — survives rotation and screen switches, re-clamped on `resize` / `orientationchange` / `visualViewport.resize`.
+- New: **focus line** (crisp center guide for eye tracking), **smooth follow** (interpolated), live **position badge** while dragging, keyboard support on the notch (Arrow keys / Enter), configurable keyboard step.
 
-| # | Bug (root cause) | Fix |
-| --- | --- | --- |
-| 1 | Ruler movement driven **only** by `window.mousemove`. Touch devices fire `mousemove` only as a *compat event after a tap*, so the ruler either never appeared (it started at `top: -9999px`) or **teleported to wherever you tapped**. | Complete rewrite on the **Pointer Events** API. The ruler never reacts to taps anywhere on the page. |
-| 2 | The ruler had `pointer-events: none` and **no drag mechanism at all** — there was no way to deliberately position it with mouse *or* finger. | A dedicated **drag handle** (44 px touch target, `touch-action: none`, `setPointerCapture`) works with mouse, pen and touch. Double-tap centers the ruler. |
-| 3 | "Follow pointer" semantics on a touchscreen conflict with scrolling. | Follow mode now only tracks **hover-capable pointers** (`pointerType !== "touch"` + `(hover: hover)` media query). New setting *Ruler interaction mode*: `auto` (default: follow on desktop, manual on touch) / `follow` / `manual`. |
-| 4 | `mix-blend-mode: multiply` rendered the yellow ruler **almost black in dark themes**. | `multiply` only in light theme; normal blending in `body.theme-dark`. |
-| 5 | Writing `style.top` on every mousemove forced layout 60×/s. | Movement via `transform: translate3d()` behind an rAF-coalesced scheduler. |
-| 6 | Position was implicit (last mouse Y), never persisted; resize/orientation changes could push it off-screen. | Position persisted as a **0–1 ratio** of the movable range — survives orientation changes and other screen sizes; re-clamped on `resize` / `orientationchange` / `visualViewport.resize`. |
-| 7 | Ruler band at `z-index: 9999` painted **above Obsidian modals, menus, popovers and tooltips**. | Sits just below the floating-UI layer (`calc(var(--layer-float, 60) - 5)`). |
-| 8 | The translucent band opacity also faded the (future) handle — a 0.18-opacity ruler would have an invisible handle. | Opacity lives on an inner `.frt-ruler-band` child; the handle stays fully opaque. |
-| 9 | Google Fonts loader injected **all six families** regardless of selection (wasted mobile bandwidth). | Only the selected family is loaded; link removed when unused. |
-| 10 | The base stylesheet existed **twice** (`styles.css` + a JS-injected copy that was rebuilt as `textContent` on every settings change). | Single source of truth: static `styles.css` + CSS custom properties set on `:root` from JS. |
-| 11 | Custom font stack (user input) was interpolated into CSS without sanitizing → CSS injection. | `sanitizeFontStack()` strips rule-breaking characters; all numeric settings clamped on load. |
-| 12 | No keyboard/commands support for the ruler. | Commands: *Toggle ruler*, *Center ruler*, *Move ruler up/down*. |
+### 3. Typography (`modules/typography`)
+Reading font (8 presets + custom stack), size, line height, paragraph spacing, max line width. CSS custom properties on `:root` consumed by the static stylesheet — one source of truth, no CSS re-parsing. Google Fonts loads **only the selected family**.
 
-### 2. Focus Read: Timer & Nudge
+### 4. Heat Map of Notes (`modules/heatmap`)
+The per-note vertical attention strip, redrawn:
+- Per-bucket **intensity texture** + the signature profile area/outline + the current-viewport band.
+- Tooltip now shows time, visits **and note coverage** (read-only lookups — hovering never creates records).
+- Folder renames remap all nested records; visits counted once per session; per-path viewport state pruned when the last view closes; touch devices never get their scroll swallowed by the strip.
+- Maintenance tools: reset current note, reset database (confirmation modal), prune deleted-note records.
 
-| # | Bug | Fix |
-| --- | --- | --- |
-| 1 | `document.addEventListener("visibilitychange", …)` was **never removed** — leaked across plugin reload/disable. | All listeners registered through `registerDomEvent` (auto-cleanup by Obsidian). |
-| 2 | Saved timer position (e.g. `x=1187` from a desktop) was applied **without clamping** → box permanently off-screen on phones. | Clamped into the viewport on load **and** on `resize`/`orientationchange`/`visualViewport` changes; drag clamping uses the element's real size. |
-| 3 | Ticking ran on `requestAnimationFrame`: the timer **froze in background windows** and re-rendered the whole widget 60×/s. | 250 ms interval + timestamp math (accurate in background), DOM writes only when the displayed second changes (≈1 Hz). |
-| 4 | Dismissing the idle nudge was pointless — the 5 s idle check **re-created it immediately**. | Dismissal snoozes for `max(2 × threshold, 60 s)`; real input cancels the snooze. |
-| 5 | The reading-time tracker counted time while the user had **walked away** (only checked window focus). | When focus detection is enabled, user activity within the idle threshold is also required. |
-| 6 | Breaks could not be paused (state machine conflated phase and running state). | Clean `(phase: work/break, running)` state machine; breaks are pausable. |
-| 7 | `resetAutoHide` churned `clearTimeout`/`setTimeout` on **every mousemove**. | Auto-hide timers reset through the widget's `poke()` throttle-free path; no per-mousemove allocation. |
-| 8 | Dopamine bar label could sit under the iOS home indicator / Android gesture bar. | `env(safe-area-inset-bottom)` respected; touch-friendly button sizing; narrower layout on phones. |
+---
 
-### 3. Heatmap of Notes
+## Settings: one system, eight sections
 
-| # | Bug | Fix |
-| --- | --- | --- |
-| 1 | **Folder renames orphaned every record beneath the folder** (only single-file renames were handled). | `remapRecordPaths()` remaps the file itself and every `oldPrefix/…` record; idempotent under Obsidian's double-fire rename events. |
-| 2 | The heatmap strip had `pointer-events: auto` — on touch devices a 16 px strip along the **right edge swallowed scroll gestures**. | On touch devices (detected via `(hover: none)`), the strip becomes `pointer-events: none` (hover tooltips are desktop-only anyway). |
-| 3 | Mere **hovering** the strip created a fresh record (2 × bucketCount zeros) for never-opened notes, polluting `data.json`. | Read-only `getRecord()` for tooltip/dashboard; only write paths create records. |
-| 4 | `checkAndRebindScroller()` ran `querySelector` + `getMode()` on **every paint, tick and mousemove**. | Scroller is re-resolved only when it is actually detached from the DOM. |
-| 5 | Changing settings (e.g. bucket resolution) rebuilt renderers and **recounted a "visit"** for every open note. | Visits are counted once per note per session (`sessionVisitedPaths`), independent of renderer rebuilds. |
-| 6 | Per-path viewport state (`lastVisibleBucketsMap`) grew **forever**. | Pruned when the last view for a path closes. |
-| 7 | "Reset Database" used the raw `confirm()` dialog (blocked/unavailable in some Obsidian contexts, especially mobile). | Proper Obsidian `Modal` confirmation. |
-| 8 | `destroy()` left `position: relative` inline style on live views. | Original inline position recorded and restored on destroy. |
-| 9 | Records for deleted notes accumulated forever with no way to clean up. | New **"Prune records for deleted notes"** maintenance action. |
-| 10 | Tooltip width hardcoded (140 px) — could overlap the viewport edge. | Uses the real `offsetWidth`, clamped to ≥ 4 px. |
+Settings → **Focus Read Suite** opens a tabbed interface (sticky navigation, horizontally scrollable on phones):
 
-### Cross-cutting improvements (all three plugins)
+1. **General** — stats tracking on/off, feedback notices, module overview
+2. **Focus Read Timer** — timer, focus detection, idle nudge, daily goal + reading stats dashboard
+3. **Notch & Reading Focus** — master toggle, notch visibility/size, focus line, smooth follow, keyboard step
+4. **Typography** — font, size, line height, spacing, width, Google Fonts
+5. **Yellow Ruler** — band height, color, opacity, interaction mode, position reset
+6. **Heat Map of Notes** — tracking thresholds, resolution, strip appearance + analytics dashboard & maintenance
+7. **Appearance** — accent source (native/custom), widget scale
+8. **Advanced** — debug mode, analytics interval, migration card, legacy-plugin helper, full settings reset
 
-- Rewritten from bundles into **modular TypeScript** (`settings` / pure logic modules / DOM controllers / plugin entry) — logic modules are DOM-free and unit-testable.
-- **Lifecycle hygiene**: every listener, interval and DOM node is registered/owned through Obsidian's `registerDomEvent` / `registerInterval` / `registerEvent` / `register(cb)` APIs; verified by leak tests that run `onunload()` + framework teardown and assert zero leftovers.
-- **Settings hardening**: all persisted values are normalized and clamped on load (bad/hand-edited values can no longer produce broken CSS or a 0-bucket canvas).
-- **Data compatibility**: `data.json` schemas are unchanged; new keys default sensibly. The bundles were smoke-tested against the vault's **real `data.json` files** (settings, stats and heatmap records all survive a load → unload → save cycle untouched).
-- Duplicate/dead code removed (the JS-injected CSS copy, the double body-class toggles, the duplicated DPR logic, etc.).
+Every control is **live**: it writes through the central `SettingsManager`, which notifies the owning module and the change takes effect immediately (verified by tests that flip settings and assert the DOM/behavior). Every value is validated and clamped on load, after every update, and on reset — hand-edited or corrupt `data.json` can never produce broken CSS or an off-screen widget. Each section has a **Reset** action; Advanced has **Reset all settings** (statistics and heatmap records are kept).
+
+---
+
+## Migration from the three legacy plugins
+
+On first launch the suite reads (read-only!):
+
+```
+.obsidian/plugins/focus-read-timer/data.json        { settings, stats }
+.obsidian/plugins/focus-read-typography/data.json   (flat settings)
+.obsidian/plugins/heatmap/data.json                 { settings, records }
+```
+
+…maps every compatible key into the unified schema, imports your **reading statistics and heatmap records verbatim**, writes its own `data.json` with a migration marker, and shows a summary notice. Migration runs exactly once; it can be re-run from Settings → Advanced (your customized suite settings win on conflicts).
+
+**The legacy files are never modified or deleted.** The old plugin folders stay in `.obsidian/plugins/` as a rollback safety net. Because running old and new plugins together duplicates UI, the suite detects enabled legacy plugins and offers one-click disable (Settings → Advanced or the command palette: *"Disable the legacy Focus Read / Heatmap plugins"*). Once you've verified everything works, delete the old folders whenever you like.
+
+Migration is covered by dedicated unit tests (pure mapping, missing files, corrupt data, idempotence, forced re-run, custom-settings precedence) **and** by the bundle smoke test which boots the real artifact against the real legacy payloads.
 
 ---
 
@@ -93,88 +99,85 @@ original code — not symptoms:
 
 ```
 obsidian-plugins/
-├── shared/                      # code shared across plugins
-│   ├── src/viewport.ts          # viewport size, clamping, hover detection, rAF scheduler
-│   └── test/                    # obsidian module stub + DOM/pointer test helpers
-├── focus-read-timer/
+├── focus-read-suite/                  # THE plugin
+│   ├── manifest.json                  # id: focus-read-suite, v2.0.0, desktop+mobile
+│   ├── styles.css                     # unified design system (single source of truth)
 │   ├── src/
-│   │   ├── main.ts              # lifecycle, commands, wiring
-│   │   ├── settings.ts          # settings model + normalization + clock formatting
-│   │   ├── timer.ts             # FocusTimer state machine (pure logic)
-│   │   ├── stats.ts             # reading-time stats: rollover, streaks, accrual (pure logic)
-│   │   ├── widget.ts            # floating timer box: render, pointer drag, auto-hide
-│   │   ├── nudge.ts             # idle nudge with snooze
-│   │   ├── dopamine.ts          # daily goal bar
-│   │   └── settings-tab.ts
-│   └── test/                    # 54 tests
-├── focus-read-typography/
-│   ├── src/
-│   │   ├── main.ts              # lifecycle, commands, wiring
-│   │   ├── settings.ts          # settings model, font stacks, sanitization
-│   │   ├── typography.ts        # CSS-variable application + Google Fonts link management
-│   │   ├── ruler.ts             # ReadingRuler: pointer drag + follow + clamping
-│   │   └── settings-tab.ts
-│   └── test/                    # 41 tests (incl. touch/mouse interaction suites)
-├── heatmap-of-notes/
-│   ├── src/
-│   │   ├── main.ts              # lifecycle, workspace/vault events
-│   │   ├── types.ts             # settings + record models
-│   │   ├── logger.ts            # leveled logger
-│   │   ├── storage.ts           # HeatmapDatabase + pure helpers (resize, rename remap, prune)
-│   │   ├── activity.ts          # ActivityMonitor (pointer-based)
-│   │   ├── renderer.ts          # canvas renderer + tooltip
-│   │   ├── engine.ts            # tracking loop + pure viewport-bucket math
-│   │   └── settings-tab.ts      # settings, dashboard, tools (incl. prune)
-│   └── test/                    # 33 tests
+│   │   ├── main.ts                    # thin entry: settings+migration+lifecycle, module registry
+│   │   ├── core/
+│   │   │   ├── settings-schema.ts     # typed 8-section schema, defaults, normalization (pure)
+│   │   │   ├── settings-manager.ts    # the one write path: update/normalize/persist/emit
+│   │   │   ├── migration.ts           # legacy readers + pure mapping + runner (idempotent)
+│   │   │   ├── lifecycle.ts           # LifecycleHub: every listener/interval registered here
+│   │   │   ├── viewport.ts            # visual-viewport size, clamping, hover detection, rAF
+│   │   │   └── logger.ts              # leveled logger (debug via Advanced settings)
+│   │   ├── modules/
+│   │   │   ├── module.ts              # the FocusSuiteModule contract (load/unload/sections)
+│   │   │   ├── timer/                 # FocusTimer, TimerWidget, stats, Nudge, GoalBar, module
+│   │   │   ├── focus/                 # ReadingRuler (notch+band+focus line), module
+│   │   │   ├── typography/            # TypographyController, module
+│   │   │   └── heatmap/               # storage, engine, renderer, activity, module
+│   │   └── ui/
+│   │       ├── settings-tab.ts        # 8-section tabbed settings UI
+│   │       └── components.ts          # labeled sliders, section headers, pills, callouts
+│   └── test/                          # 161 tests + obsidian-stub + DOM helpers
+├── legacy/                            # ARCHIVED former plugins (frozen, buildable, rollback)
+│   ├── focus-read-timer/
+│   ├── focus-read-typography/
+│   ├── heatmap-of-notes/
+│   └── shared/
 ├── scripts/
-│   ├── build.mjs                # esbuild: TS -> single-file CJS bundle per plugin
-│   ├── deploy.mjs               # copy dist into a vault's .obsidian/plugins
-│   ├── verify-bundle.mjs        # bundle shape checks (exports class, obsidian external)
-│   └── smoke-bundle.mjs         # boots the REAL bundles with a stubbed Obsidian + happy-dom
-├── package.json                 # npm scripts
-├── tsconfig.json                # strict TypeScript
-└── vitest.config.ts             # happy-dom environment + obsidian alias to the stub
+│   ├── build.mjs                      # esbuild: TS -> single-file CJS bundle
+│   ├── deploy.mjs                     # copy dist into the vault's .obsidian/plugins
+│   ├── verify-bundle.mjs              # bundle shape checks (class export, obsidian external)
+│   └── smoke-bundle.mjs               # boots the REAL bundle + legacy data + interactions
+├── package.json                       # test / test:legacy / build / verify / smoke / deploy / check
+├── tsconfig.json                      # strict TypeScript over both trees
+└── vitest.config.ts                   # suite tests (legacy has its own config)
 ```
+
+**Design rules** the implementation follows:
+
+- **One write path for settings.** Everything goes through `SettingsManager.update(section, mutator)` → normalize → persist (debounced or immediate) → emit. Modules subscribe and re-apply. No module touches `saveData` directly for settings.
+- **One registration surface.** Every DOM listener, interval, timeout and unload hook goes through the `LifecycleHub`, which delegates to Obsidian's `registerDomEvent` / `registerInterval` / `registerEvent` / `register` — so Obsidian's own teardown guarantees zero leaks. No raw `addEventListener` / `setInterval` anywhere in module code.
+- **Modules are independent.** Each can be disabled without breaking the others; each owns its entire DOM footprint; `onunload` fully undoes `load` (verified by leak tests).
+- **Shared infrastructure is centralized** — viewport math, clamping, rAF scheduling, hover detection, logging — instead of the three per-plugin copies the legacy tree had.
+- **Cross-platform by construction** — pointer events (not mouse+touch duplicates), `visualViewport`-aware positioning, safe-area insets, `(hover: hover)` capability queries, `@media` responsive layouts.
+
+---
 
 ## Testing
 
-Four layers:
+Four layers, all green:
 
-1. **Unit tests** (vitest): pure logic — timer state machine, stats/streak math, bucket math,
-   rename remapping, settings normalization, clamping. `npm test`.
-2. **DOM interaction tests** (vitest + happy-dom): pointer-event pipelines simulate mouse drags,
-   touch drags, taps, `pointercancel` (OS gesture interruption), viewport rotations — asserting
-   the exact scenarios that were broken on mobile.
-3. **Bootstrap tests**: the real plugin classes are loaded against an Obsidian API stub and run
-   through `onload → interact → onunload`, asserting DOM effects and **zero leaked
-   listeners/intervals**.
-4. **Bundle smoke tests** (`scripts/smoke-bundle.mjs`): the *actual shipped* `dist/main.js`
-   artifacts are booted with the vault's real `data.json` files; interactions are driven through
-   the DOM; data integrity is verified across a full load/unload cycle.
+1. **Unit tests** (vitest, 161 tests): settings schema normalization (clamping, sanitization, regression tests for two real bugs found during development), settings manager (update semantics, debounced persistence, resets, extras), migration mapping + runner, timer state machine, stats/streak math, nudge snooze logic, heatmap bucket math + storage (resampling, rename remapping, pruning), ruler interactions.
+2. **DOM interaction tests** (happy-dom + pointer-event pipeline): mouse drags, **touch drags**, taps (the old teleport bug), `pointercancel`, `lostpointercapture`, viewport rotations, double-tap detection, keyboard support, widget collapse, settings-tab wiring (toggles/sliders/dropdowns/colors drive real modules).
+3. **Bootstrap tests**: the real plugin class loads against an Obsidian API stub with legacy data present, runs `onload → migrate → interact → onunload`, asserting DOM effects, data preservation, legacy-file immutability and **zero leaked listeners/intervals**.
+4. **Bundle smoke test** (`scripts/smoke-bundle.mjs`): the *shipped* `dist/main.js` is booted with the vault's legacy `data.json` payloads; interactions are driven through the DOM; migration, data preservation, cleanup and legacy-file immutability are verified end-to-end.
 
-### Testing limitations (please read)
+The archived legacy plugins keep their 128 tests (`npm run test:legacy`) as a behavioral reference.
 
-The sandbox cannot run the actual Obsidian desktop/Electron or iOS/Android apps, so the following
-could not be verified here and should get a quick pass on a real device:
+### Verification status (honest breakdown)
 
-- Google Fonts download on a mobile connection (opt-in setting).
-- The ruler's drag handle on a real capacitive screen (the pointer-event pipeline is tested, but
-  only a physical device confirms gesture-nav/scroll-interception feel).
-- Canvas painting (happy-dom has no 2D canvas; the renderer's draw path is structurally guarded
-  and the paint code is a faithful port of the original, but visual output should be eyeballed
-  once).
-- Performance on very large vaults: `data.json` still holds all records in one file (10 s
-  throttled writes, same as before). The new prune tool helps keep it small.
+- ✅ **Automated test coverage**: 161 suite tests + 128 legacy reference tests + 37 bundle smoke checks — all passing.
+- ✅ **Verified in this environment**: migration & data preservation, settings live-wiring, lifecycle hygiene (zero leaks), cross-platform interaction pipelines (pointer/touch/cancel/capture), responsive re-clamping, module independence.
+- ⚠️ **Not verifiable in this sandbox**: running inside the actual Obsidian desktop/Electron, Android and iOS apps. The pointer-event code paths are exactly what mobile browsers deliver, but the physical feel (gesture-nav interplay, capacitive dragging) and the real Google Fonts download on a mobile connection should get a quick pass on a real device. Canvas painting is structurally guarded but should be eyeballed once in the app.
+- ℹ️ Performance on very large vaults: heatmap records still live in one `data.json` with 10 s throttled writes (same as before); the prune tool keeps it small.
 
-Everything else — including every fix in the tables above — is covered by the 128 automated tests.
+---
 
-## Deploying
+## Deploying / updating the vault
 
 ```bash
 npm run build
-node scripts/deploy.mjs /path/to/vault              # one or more vault roots
+node scripts/deploy.mjs ..            # this vault
+node scripts/deploy.mjs /path/to/other/vault
 ```
 
-The script copies `main.js`, `manifest.json` and `styles.css` into
-`<vault>/.obsidian/plugins/<folder>/` and never touches `data.json`. After deploying, restart
-Obsidian (or toggle the plugins off/on) and check Settings → Community plugins.
+The script copies `main.js`, `manifest.json` and `styles.css` into `<vault>/.obsidian/plugins/focus-read-suite/` and never touches `data.json`. After deploying: restart Obsidian (or reload the plugin), then enable **Focus Read Suite** in Settings → Community plugins. On first launch it migrates everything automatically.
+
+## Removing the legacy plugins (after verifying)
+
+1. Enable **Focus Read Suite** and check that your settings/stats/heatmap arrived (Settings → Advanced shows the migration report).
+2. Disable the three legacy plugins — one click via Settings → Advanced → *Disable legacy plugins*, or the command palette.
+3. When you're confident, delete `.obsidian/plugins/focus-read-timer/`, `.obsidian/plugins/focus-read-typography/` and `.obsidian/plugins/heatmap/` (the suite never needs them again; migration results live in its own `data.json`).
