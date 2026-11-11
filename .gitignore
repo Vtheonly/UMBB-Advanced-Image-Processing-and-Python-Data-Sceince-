@@ -1,0 +1,14 @@
+# Obsidian — per-device state (never commit these)
+.obsidian/workspace.json
+.obsidian/workspace-mobile.json
+.obsidian/cache
+.trash/
+
+# OS junk
+.DS_Store
+Thumbs.db
+
+# Python (in case code snippets live in this vault)
+__pycache__/
+*.pyc
+
