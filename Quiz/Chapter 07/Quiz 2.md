@@ -2,11 +2,11 @@
 sources:
   - "[[07.00 Introduction]]"
   - "[[07.01 IP Router Operations & Packet Processing]]"
-  - "[[07.02 Longest Prefix Match (LPM) Algorithmic Routing]]"
-  - "[[07.03 Static vs. Dynamic Routing Paradigms]]"
-  - "[[07.04 Distance Vector Protocols & RIPv2]]"
-  - "[[07.05 Link-State Routing & OSPF]]"
-  - "[[07.06 Path Vector Routing & BGP]]"
+  - "[[05.02 Longest Prefix Match (LPM) Evaluation Order]]"
+  - "[[07.02 Static vs. Dynamic Routing Paradigms]]"
+  - "[[07.03 Distance Vector Protocols & RIPv2]]"
+  - "[[07.04 Link-State Routing, Multi-Area OSPF & Dijkstra]]"
+  - "[[07.05 Path Vector Routing & BGP]]"
 ---
 
 > [!question] BGP is a path-vector routing protocol used for inter-domain routing.

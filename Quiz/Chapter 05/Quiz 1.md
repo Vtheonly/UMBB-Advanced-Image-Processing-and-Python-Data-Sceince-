@@ -2,10 +2,10 @@
 sources:
   - "[[05.00 Introduction]]"
   - "[[05.01 Route Entries & Administrative Distance]]"
-  - "[[05.02 Static Routing Mechanics]]"
-  - "[[05.03 Distance-Vector Routing (RIPv2)]]"
-  - "[[05.04 RIP Route Table Update Logic]]"
-  - "[[05.05 Link-State Routing (OSPF & Dijkstra's Algorithm)]]"
+  - "[[05.03 Static & Default Routing Mechanics]]"
+  - "[[07.03 Distance Vector Protocols & RIPv2]]"
+  - "[[07.03 Distance Vector Protocols & RIPv2]]"
+  - "[[07.04 Link-State Routing, Multi-Area OSPF & Dijkstra]]"
 ---
 
 > [!question] The Administrative Distance of a directly connected route is 0.

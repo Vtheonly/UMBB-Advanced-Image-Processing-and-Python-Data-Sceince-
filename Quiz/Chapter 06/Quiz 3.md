@@ -2,7 +2,7 @@
 sources:
   - "[[06.00 Introduction]]"
   - "[[06.01 Address Resolution Protocol (ARP) Deep Dive]]"
-  - "[[06.02 Network Address Translation (NAT) & Port Address Translation (PAT)]]"
+  - "[[06.04 Network Address Translation (NAT) & Port Address Translation (PAT)]]"
 ---
 
 > [!question] An ARP packet is directly encapsulated inside an IP packet.
