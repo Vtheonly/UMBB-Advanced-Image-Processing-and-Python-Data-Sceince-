@@ -1,44 +1,47 @@
 # UMBB Study Vaults — Repository Hub
 
-Academic study vaults (Obsidian) for UMBB coursework, organized as **four independent branches**.
-This branch (`main`) is only the repository's landing page and central index — it intentionally
-contains **no course material**. All notes, exercises, quizzes, and labs live in the dedicated
-subject branches below.
+Academic study vaults (Obsidian) for UMBB coursework. This branch (`main`) hosts the
+**complete APDS + TAI vault** (merged from `image-processing-data-science` via PR #1) plus
+this landing page. The other subjects stay on their own dedicated branches.
 
 ## How This Repository Is Organized
 
-| Branch | Subject | What lives there |
+| Location | Subject | What lives there |
 | :--- | :--- | :--- |
-| [`image-processing-data-science`](https://github.com/Vtheonly/UMBB-Advanced-Image-Processing-and-Python-Data-Sceince-/tree/image-processing-data-science) | **APDS + TAI** — Image Processing and Data Science | Complete APDS & TAI curriculum in one vault |
+| `main` (this branch) | **APDS + TAI** — Image Processing and Data Science | Complete APDS & TAI curriculum in one vault |
 | [`networking`](https://github.com/Vtheonly/UMBB-Advanced-Image-Processing-and-Python-Data-Sceince-/tree/networking) | **Réseaux** — Networking | Computer Networks course only |
 | [`databases`](https://github.com/Vtheonly/UMBB-Advanced-Image-Processing-and-Python-Data-Sceince-/tree/databases) | **BDA** — Databases | Advanced Databases course only |
 
-Each subject branch is a **self-contained Obsidian vault** with its own independent history.
-Switch to a branch (`git switch <branch>` or the GitHub branch selector above) to browse or study
-its material.
+`main` and each subject branch are **self-contained Obsidian vaults**. The
+`image-processing-data-science` branch served as the development branch for the APDS + TAI
+vault; its history and final state are now part of `main` (PR #1). The branch can be kept
+as an archive or deleted.
 
 ---
 
-## 1. Image Processing and Data Science (APDS + TAI)
-
-**Branch:** [`image-processing-data-science`](https://github.com/Vtheonly/UMBB-Advanced-Image-Processing-and-Python-Data-Sceince-/tree/image-processing-data-science)
+## 1. Image Processing and Data Science (APDS + TAI) — on `main`
 
 One unified curriculum that combines **Data Science & Machine Learning (APDS)** with
 **Advanced Image Processing & Computer Vision (TAI)** on top of a single shared Python
 computational foundation:
 
-- **APDS track** — Introduction to Data Science, Python Programming Essentials, Essential Python
-  Libraries, Data Cleansing & Preprocessing, Exploratory Data Analysis (sections 01–05)
-- **TAI track** — Advanced Image Processing (section 06): image foundations & discretization,
-  degradation & restoration, frequency-domain processing, mathematical morphology, contrast
-  dynamics & Retinex, clustering & deep restoration, segmentation, super-resolution, worked
-  exercises, and the full TP laboratory series
-- **Shared library core** — 26 in-depth notes on NumPy, Pandas, Matplotlib/Seaborn, OpenCV,
-  SciPy, and Scikit-Learn (the `Libraries/` section)
-- **Quiz banks** for every chapter and library note, plus the custom Obsidian plugin toolchain
-  (`obsidian-plugins/`)
+- **Data Science track** (`Data Science/`, chapters 01–05) — Introduction to Data Science,
+  Python Programming Essentials, Essential Python Libraries, Data Cleansing & Preprocessing,
+  Exploratory Data Analysis
+- **TAI track** (`TAI/`, chapters 00–10) — image foundations & discretization, degradation &
+  restoration, frequency-domain processing, mathematical morphology, contrast dynamics &
+  Retinex, clustering & deep restoration, segmentation, super-resolution, worked exercises,
+  and the full TP laboratory series
+- **Shared library core** (`Libraries/`) — 26 in-depth notes on NumPy, Pandas,
+  Matplotlib/Seaborn, OpenCV, SciPy, and Scikit-Learn, each with a `.5` exam-defense
+  companion note, plus the 60-Second Recovery Sheet & 15-Minute Motor Recall Protocol
+- **Quiz banks** (`Quiz/`) — one bank for every Data Science chapter, every TAI chapter
+  (`Quiz/TAI/`), and every library note (`Quiz/Libraries/`)
+- **Plugin toolchain** (`.obsidian/plugins/focus-read-suite/`) — Focus Read Suite v2.0.0, the
+  single consolidated plugin (focus timer, reading ruler, typography, note heatmap), enabled
+  via `.obsidian/community-plugins.json`
 
-Start with `00. Master Curriculum Roadmap.md` on that branch.
+Start with `00. Master Curriculum Roadmap.md`.
 
 ## 2. Networking (Réseaux)
 
@@ -73,11 +76,11 @@ Start with `00. Databases Roadmap.md` on that branch.
 
 ## Ground Rules (Permanent Architecture)
 
-- The four branches are **independent destinations**, not stages in a development workflow.
-- **Never merge** a subject branch into `main`, `main` into a subject branch, or one subject
-  branch into another — no merge commits, squash merges, rebase-based integration, or merging
-  pull requests.
-- If material must move between branches, use **file-level transfers** committed on the
+- `main` is the home of the **APDS + TAI vault** plus this landing page; `networking` and
+  `databases` are **independent destinations**, not stages in a development workflow.
+- **Never merge** `networking` or `databases` into `main`, `main` into them, or one into the
+  other — no merge commits, squash merges, rebase-based integration, or merging pull requests.
+- If material must move between those branches, use **file-level transfers** committed on the
   destination branch, never history merges.
-- `main` stays minimal: this landing page and the central index only. No course folders, notes,
-  exercises, PDFs, or notebooks belong here.
+- No course material other than APDS + TAI belongs on `main`; conversely, `main` carries the
+  full APDS + TAI vault, not just an index.
