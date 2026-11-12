@@ -4,14 +4,12 @@
  * folders so Obsidian loads the freshly built versions.
  *
  * Usage:
- *   node scripts/deploy.mjs <vaultRoot> [...more vault roots]   → suite only
- *   node scripts/deploy.mjs --legacy <vaultRoot>                → suite + legacy
+ *   node scripts/deploy.mjs <vaultRoot> [...more vault roots]
  *
  * For the suite the deploy target is:
  *   <vaultRoot>/.obsidian/plugins/focus-read-suite/{main.js, manifest.json, styles.css}
  *
- * `data.json` (user settings + tracked data) is intentionally NEVER touched —
- * neither for the suite nor for the legacy plugins (they stay rollback-able).
+ * `data.json` (user settings + tracked data) is intentionally NEVER touched.
  */
 import { cp, mkdir, readFile, rm } from "node:fs/promises";
 import { existsSync } from "node:fs";
@@ -20,24 +18,14 @@ import { fileURLToPath } from "node:url";
 
 const root = dirname(fileURLToPath(import.meta.url));
 
-const withLegacy = process.argv.includes("--legacy");
-const vaultRoots = process.argv.slice(2).filter((a) => !a.startsWith("--"));
+const vaultRoots = process.argv.slice(2);
 if (vaultRoots.length === 0) {
-  console.error("Usage: node scripts/deploy.mjs [--legacy] <vaultRoot> [...more vault roots]");
+  console.error("Usage: node scripts/deploy.mjs <vaultRoot> [...more vault roots]");
   process.exit(1);
 }
 
 /** plugin source folder -> folder name inside .obsidian/plugins */
-const PLUGINS = [
-  { src: "focus-read-suite", dir: "focus-read-suite" },
-  ...(withLegacy
-    ? [
-        { src: "legacy/focus-read-timer", dir: "focus-read-timer" },
-        { src: "legacy/focus-read-typography", dir: "focus-read-typography" },
-        { src: "legacy/heatmap-of-notes", dir: "heatmap" }, // keep existing folder name (compatibility)
-      ]
-    : []),
-];
+const PLUGINS = [{ src: "focus-read-suite", dir: "focus-read-suite" }];
 
 for (const vault of vaultRoots) {
   for (const { src, dir } of PLUGINS) {

@@ -17,9 +17,7 @@
     "types": ["node"]
   },
   "include": [
-    "focus-read-suite/src/**/*.ts",
-    "legacy/*/src/**/*.ts",
-    "legacy/shared/src/**/*.ts"
+    "focus-read-suite/src/**/*.ts"
   ],
   "exclude": ["node_modules", "*/dist/**", "**/test/**"]
 }

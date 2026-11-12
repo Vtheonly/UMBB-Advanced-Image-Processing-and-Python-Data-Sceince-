@@ -7,7 +7,6 @@ import { resolve } from "node:path";
  * - Tests run against happy-dom (lightweight DOM).
  * - The `obsidian` module is aliased to the suite's test stub so the plugin
  *   can be imported and exercised outside the real Obsidian application.
- * - The legacy (archived) plugins have their own config: legacy/vitest.config.ts
  */
 export default defineConfig({
   test: {

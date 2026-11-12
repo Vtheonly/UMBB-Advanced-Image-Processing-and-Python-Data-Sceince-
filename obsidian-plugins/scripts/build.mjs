@@ -4,7 +4,6 @@
  * load, plus copies manifest/styles next to the bundle.
  *
  *   node scripts/build.mjs            → builds focus-read-suite (the product)
- *   node scripts/build.mjs --legacy   → also builds the archived legacy plugins
  *
  * Output layout (per plugin):
  *   <plugin>/dist/main.js        — bundled plugin entry
@@ -19,13 +18,7 @@ import { fileURLToPath } from "node:url";
 
 const root = dirname(fileURLToPath(import.meta.url));
 
-const SUITE = "focus-read-suite";
-// Legacy sources live under legacy/ (archived at v1.1.0) — build and deploy
-// paths must agree on that prefix.
-const LEGACY = ["legacy/focus-read-timer", "legacy/focus-read-typography", "legacy/heatmap-of-notes"];
-
-const withLegacy = process.argv.includes("--legacy");
-const plugins = [SUITE, ...(withLegacy ? LEGACY : [])];
+const plugins = ["focus-read-suite"];
 
 let failed = false;
 

@@ -6,10 +6,8 @@
   "type": "module",
   "scripts": {
     "build": "node scripts/build.mjs",
-    "build:legacy": "node scripts/build.mjs --legacy",
     "test": "vitest run",
     "test:watch": "vitest",
-    "test:legacy": "cd legacy && vitest run --config vitest.config.ts",
     "deploy": "node scripts/build.mjs && node scripts/deploy.mjs",
     "verify": "node scripts/verify-bundle.mjs",
     "smoke": "node scripts/smoke-bundle.mjs",

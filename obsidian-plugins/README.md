@@ -18,12 +18,9 @@ One plugin, one settings system, one visual identity — while every original fe
 cd obsidian-plugins
 npm install                     # dev toolchain: esbuild, typescript, vitest, happy-dom
 npm test                        # 161 unit + integration tests
-npm run test:legacy             # 128 archived legacy-plugin tests (behavioral reference)
 npm run build                   # type-safe bundle -> focus-read-suite/dist/main.js
-npm run build:legacy            # also build the archived legacy bundles (rollback artifacts)
 npm run verify                  # bundle shape sanity checks
-node scripts/smoke-bundle.mjs   # boots the REAL bundle with legacy data + stubbed Obsidian
-node scripts/verify-upgrade-path.mjs  # boots the DEPLOYED bundle with the vault's REAL data.json files
+node scripts/smoke-bundle.mjs   # boots the REAL bundle with legacy migration fixtures + stubbed Obsidian
 npm run deploy -- ..            # copies dist into ../.obsidian/plugins/focus-read-suite/
 npm run check                   # build + verify + test + smoke in one go
 ```
@@ -92,9 +89,9 @@ On first launch the suite reads (read-only!):
 
 …maps every compatible key into the unified schema, imports your **reading statistics and heatmap records verbatim**, writes its own `data.json` with a migration marker, and shows a summary notice. Migration runs exactly once; it can be re-run from Settings → Advanced (your customized suite settings win on conflicts).
 
-**The legacy files are never modified or deleted.** The old plugin folders stay in `.obsidian/plugins/` as a rollback safety net. Because running old and new plugins together duplicates UI, the suite detects enabled legacy plugins and offers one-click disable (Settings → Advanced or the command palette: *"Disable the legacy Focus Read / Heatmap plugins"*). Once you've verified everything works, delete the old folders whenever you like.
+**The legacy files are never modified or deleted.** In vaults that still have them, the old plugin folders stay in `.obsidian/plugins/` as a rollback safety net; because running old and new plugins together duplicates UI, the suite detects enabled legacy plugins and offers one-click disable (Settings → Advanced or the command palette: *"Disable the legacy Focus Read / Heatmap plugins"*). This vault has already completed that migration and removed the legacy plugin folders and their archived sources.
 
-Migration is covered by dedicated unit tests (pure mapping, missing files, corrupt data, idempotence, forced re-run, custom-settings precedence) **and** by the bundle smoke test which boots the real artifact against the real legacy payloads.
+Migration is covered by dedicated unit tests (pure mapping, missing files, corrupt data, idempotence, forced re-run, custom-settings precedence) **and** by the bundle smoke test which boots the real artifact against real-shaped legacy payloads.
 
 ---
 
@@ -124,20 +121,14 @@ obsidian-plugins/
 │   │       ├── settings-tab.ts        # 8-section tabbed settings UI
 │   │       └── components.ts          # labeled sliders, section headers, pills, callouts
 │   └── test/                          # 161 tests + obsidian-stub + DOM helpers
-├── legacy/                            # ARCHIVED former plugins (frozen, buildable, rollback)
-│   ├── focus-read-timer/
-│   ├── focus-read-typography/
-│   ├── heatmap-of-notes/
-│   └── shared/
 ├── scripts/
-│   ├── build.mjs                      # esbuild: TS -> single-file CJS bundle (--legacy for the archive)
-│   ├── deploy.mjs                     # copy dist into the vault's .obsidian/plugins (--legacy for rollback)
+│   ├── build.mjs                      # esbuild: TS -> single-file CJS bundle
+│   ├── deploy.mjs                     # copy dist into the vault's .obsidian/plugins
 │   ├── verify-bundle.mjs              # bundle shape checks (class export, obsidian external)
-│   ├── smoke-bundle.mjs               # boots the REAL bundle + legacy data + interactions
-│   └── verify-upgrade-path.mjs        # boots the DEPLOYED bundle with the vault's REAL data files
-├── package.json                       # test / test:legacy / build / verify / smoke / deploy / check
-├── tsconfig.json                      # strict TypeScript over both trees
-└── vitest.config.ts                   # suite tests (legacy has its own config)
+│   └── smoke-bundle.mjs               # boots the REAL bundle + legacy migration fixtures + interactions
+├── package.json                       # test / build / verify / smoke / deploy / check
+├── tsconfig.json                      # strict TypeScript
+└── vitest.config.ts                   # suite tests
 ```
 
 **Design rules** the implementation follows:
@@ -157,14 +148,11 @@ Four layers, all green:
 1. **Unit tests** (vitest, 161 tests): settings schema normalization (clamping, sanitization, regression tests for two real bugs found during development), settings manager (update semantics, debounced persistence, resets, extras), migration mapping + runner, timer state machine, stats/streak math, nudge snooze logic, heatmap bucket math + storage (resampling, rename remapping, pruning), ruler interactions.
 2. **DOM interaction tests** (happy-dom + pointer-event pipeline): mouse drags, **touch drags**, taps (the old teleport bug), `pointercancel`, `lostpointercapture`, viewport rotations, double-tap detection, keyboard support, widget collapse, settings-tab wiring (toggles/sliders/dropdowns/colors drive real modules).
 3. **Bootstrap tests**: the real plugin class loads against an Obsidian API stub with legacy data present, runs `onload → migrate → interact → onunload`, asserting DOM effects, data preservation, legacy-file immutability and **zero leaked listeners/intervals**.
-4. **Bundle smoke test** (`scripts/smoke-bundle.mjs`): the *shipped* `dist/main.js` is booted with the vault's legacy `data.json` payloads; interactions are driven through the DOM; migration, data preservation, cleanup and legacy-file immutability are verified end-to-end.
-5. **Real-data upgrade-path verification** (`scripts/verify-upgrade-path.mjs`): boots the **deployed** bundle (`.obsidian/plugins/focus-read-suite/main.js`) against the vault's **actual** `data.json` files read from disk — 45 checks covering: the user's exact Yellow Ruler mounting after migration (color `#ffc400`, height 47px, opacity 0.6), every migrated setting, stats/records preservation, touch-drag + tap-immunity + center-command behavior, debounced persistence, byte-identical legacy files after unload, and idempotent second boot (no re-migration).
-
-The archived legacy plugins keep their 128 tests (`npm run test:legacy`) as a behavioral reference.
+4. **Bundle smoke test** (`scripts/smoke-bundle.mjs`): the *shipped* `dist/main.js` is booted with legacy-shaped `data.json` payloads; interactions are driven through the DOM; migration, data preservation, cleanup and legacy-file immutability are verified end-to-end.
 
 ### Verification status (honest breakdown)
 
-- ✅ **Automated test coverage**: 161 suite tests + 128 legacy reference tests + 37 bundle smoke checks — all passing.
+- ✅ **Automated test coverage**: 161 suite tests + 37 bundle smoke checks — all passing.
 - ✅ **Verified in this environment**: migration & data preservation, settings live-wiring, lifecycle hygiene (zero leaks), cross-platform interaction pipelines (pointer/touch/cancel/capture), responsive re-clamping, module independence.
 - ⚠️ **Not verifiable in this sandbox**: running inside the actual Obsidian desktop/Electron, Android and iOS apps. The pointer-event code paths are exactly what mobile browsers deliver, but the physical feel (gesture-nav interplay, capacitive dragging) and the real Google Fonts download on a mobile connection should get a quick pass on a real device. Canvas painting is structurally guarded but should be eyeballed once in the app.
 - ℹ️ Performance on very large vaults: heatmap records still live in one `data.json` with 10 s throttled writes (same as before); the prune tool keeps it small.
